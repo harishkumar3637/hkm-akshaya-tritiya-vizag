@@ -122,9 +122,11 @@ export function AkshayaTritiyaSection() {
             </div>
 
             <div className="mt-6">
-              <Button size="lg" className="rounded-full bg-gradient-to-r from-[#8b3a1f] to-[#6b3d2f] px-8 text-white hover:from-[#6b3d2f] hover:to-[#5a3428] shadow-lg transition-all">
-                Donate Now
-              </Button>
+              <a href="#donation-form">
+                <Button size="lg" className="rounded-full bg-gradient-to-r from-[#8b3a1f] to-[#6b3d2f] px-8 text-white hover:from-[#6b3d2f] hover:to-[#5a3428] shadow-lg transition-all">
+                  Donate Now
+                </Button>
+              </a>
             </div>
           </div>
         </div>

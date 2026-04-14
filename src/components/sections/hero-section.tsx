@@ -10,9 +10,8 @@ import { slideInLeft, slideInRight } from "@/lib/animations";
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-[#4f170f]">
-
       <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-9">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
@@ -24,7 +23,7 @@ export function HeroSection() {
           </div>
         </motion.div>
 
-        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-8">
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_440px] lg:gap-10">
           <motion.div {...slideInLeft} className="max-w-3xl pt-1 text-white lg:py-6">
             <div className="inline-flex items-center rounded-full border border-[#ffd188]/35 bg-[#f2c26a]/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.26em] text-[#ffe2a8]">
               Offer Seva and Daan that never diminishes
@@ -44,10 +43,10 @@ export function HeroSection() {
                 </Button>
               </a>
               <a
-                href="#benefits"
+                href="#akshaya-tritiya-daan"
                 className="inline-flex h-[52px] items-center justify-center gap-2 rounded-full border border-white/25 bg-white/10 px-6 text-sm font-semibold text-white transition-all duration-300 hover:bg-white/15"
               >
-                Explore Blessings
+                Explore Seva's
                 <ArrowDown className="h-4 w-4" />
               </a>
             </div>
@@ -67,16 +66,15 @@ export function HeroSection() {
           </motion.div>
 
           <motion.div {...slideInRight} className="lg:sticky lg:top-5">
-            <div className="relative mx-auto max-w-[400px] overflow-hidden rounded-[28px] border border-white/15 bg-white/10 p-3 shadow-[0_24px_80px_rgba(0,0,0,0.28)] backdrop-blur-sm">
-              <div className="relative aspect-[4/4.7] overflow-hidden rounded-[22px]">
+            <div className="mx-auto max-w-[500px]">
+              <div className="relative h-[520px]">
                 <Image
-                  src="/hero-img.png"
+                  src="/hero-poster.png"
                   alt="Akshaya Tritiya devotional offering"
                   fill
                   priority
-                  className="object-cover"
+                  className="object-contain drop-shadow-[0_24px_48px_rgba(0,0,0,0.28)]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#2e0d08]/55 via-transparent to-transparent" />
               </div>
             </div>
           </motion.div>

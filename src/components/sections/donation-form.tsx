@@ -139,9 +139,11 @@ export function DonationForm() {
                         id="seva"
                         value={formData.seva}
                         onChange={(e) => setFormData({ ...formData, seva: e.target.value })}
-                        className="w-full appearance-none rounded-2xl border border-[#c18372] bg-white px-5 py-4 pr-12 text-lg text-[#39180f] focus:border-[#8b3a1f] focus:outline-none"
+                        className={`w-full appearance-none rounded-2xl border border-[#c18372] bg-white px-5 py-4 pr-12 text-lg focus:border-[#8b3a1f] focus:outline-none ${
+                          formData.seva ? 'text-[#39180f]' : 'text-[#6e2918]'
+                        }`}
                       >
-                        <option value="">Akshaya Tritiya Seva</option>
+                        <option value="" className="text-[#6e2918]">Akshaya Tritiya Seva</option>
                         <option value="akshaya-tritiya">Akshaya Tritiya Seva</option>
                         <option value="gau-seva">Gau Seva</option>
                         <option value="mandir">Mandir Nirman Seva</option>
@@ -162,7 +164,7 @@ export function DonationForm() {
                       placeholder="Enter Amount"
                       value={formData.amount}
                       onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                      className="w-full rounded-2xl border border-[#c18372] bg-white px-5 py-4 text-lg text-[#39180f] focus:border-[#8b3a1f] focus:outline-none"
+                        className="w-full rounded-2xl border border-[#c18372] bg-white px-5 py-4 text-lg text-[#39180f] placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
                     />
                   </div>
                 </div>
@@ -220,7 +222,7 @@ export function DonationForm() {
                         placeholder="Your Full Name"
                         value={formData.fullName}
                         onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                        className="w-full rounded-2xl border border-transparent bg-white/75 px-4 py-3 text-lg text-[#39180f] focus:border-[#8b3a1f] focus:outline-none"
+                        className="w-full rounded-2xl border border-transparent bg-white/75 px-4 py-3 text-lg text-[#39180f] placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
                       />
                     </div>
 
@@ -238,7 +240,7 @@ export function DonationForm() {
                           placeholder="+91"
                           value={formData.whatsapp}
                           onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                          className="min-w-0 flex-1 rounded-2xl border border-transparent bg-white/75 px-4 py-3 text-lg text-[#39180f] focus:border-[#8b3a1f] focus:outline-none"
+                          className="min-w-0 flex-1 rounded-2xl border border-transparent bg-white/75 px-4 py-3 text-lg text-[#39180f] placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
                         />
                       </div>
                     </div>
@@ -253,7 +255,7 @@ export function DonationForm() {
                         placeholder="Your Email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full rounded-2xl border border-transparent bg-white/75 px-4 py-3 text-lg text-[#39180f] focus:border-[#8b3a1f] focus:outline-none"
+                        className="w-full rounded-2xl border border-transparent bg-white/75 px-4 py-3 text-lg text-[#39180f] placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
                       />
                     </div>
 
@@ -268,7 +270,7 @@ export function DonationForm() {
                           placeholder="dd/mm/yyyy"
                           value={formData.dateOfBirth}
                           onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                          className="w-full rounded-2xl border border-transparent bg-white/75 px-4 py-3 pr-12 text-lg text-[#39180f] focus:border-[#8b3a1f] focus:outline-none"
+                          className="w-full rounded-2xl border border-transparent bg-white/75 px-4 py-3 pr-12 text-lg text-[#39180f] placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
                         />
                         <CalendarDays className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#9d5f4f]" />
                       </div>
@@ -354,133 +356,135 @@ export function DonationForm() {
           ) : (
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               <div className="lg:col-span-2">
-              <div className="mb-6">
-                <label htmlFor="seva" className="mb-3 block text-sm font-semibold text-gray-800">
-                  Select Seva
-                </label>
-                <select
-                  id="seva"
-                  value={formData.seva}
-                  onChange={(e) => setFormData({ ...formData, seva: e.target.value })}
-                  className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 focus:border-[#8b3a1f] focus:outline-none"
-                >
-                  <option value="">Choose a Seva</option>
-                  <option value="akshaya-tritiya">Akshaya Tritiya Seva</option>
-                  <option value="gau-seva">Gau Seva</option>
-                  <option value="mandir">Mandir Nirman Seva</option>
-                  <option value="annadana">Annadana Seva</option>
-                </select>
-              </div>
-
-              <div className="mb-6">
-                <label htmlFor="amount" className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-800">
-                  Amount
-                  <Info className="h-4 w-4 text-gray-500" />
-                </label>
-                <input
-                  id="amount"
-                  type="number"
-                  placeholder="Enter Amount"
-                  value={formData.amount}
-                  onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                  className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 focus:border-[#8b3a1f] focus:outline-none"
-                />
-              </div>
-
-              <div className="mb-6 rounded-lg bg-[#fde9bf] p-6">
-                <div className="mb-5">
-                  <label htmlFor="fullName" className="mb-2 block text-sm font-semibold text-gray-800">
-                    Full Name
-                  </label>
-                  <input
-                    id="fullName"
-                    type="text"
-                    placeholder="Your Full Name"
-                    value={formData.fullName}
-                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    className="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 focus:border-[#8b3a1f] focus:outline-none"
-                  />
-                </div>
-
-                <div className="mb-5 grid grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="whatsapp" className="mb-2 block text-sm font-semibold text-gray-800">
-                      WhatsApp Number
+                <div className="rounded-lg bg-[#fde9bf] p-6">
+                  <div className="mb-6">
+                    <label htmlFor="seva" className="mb-3 block text-sm font-semibold text-gray-800">
+                      Select Seva
                     </label>
-                    <div className="flex gap-2">
-                      <div className="flex items-center gap-1 rounded-lg border-2 border-gray-300 bg-white px-3">
-                        <span aria-hidden="true" className="text-lg">IN</span>
-                        <span className="text-gray-700">+91</span>
+                    <select
+                      id="seva"
+                      value={formData.seva}
+                      onChange={(e) => setFormData({ ...formData, seva: e.target.value })}
+                      className={`w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 focus:border-[#8b3a1f] focus:outline-none ${
+                        formData.seva ? 'text-gray-800' : 'text-[#6e2918]'
+                      }`}
+                    >
+                      <option value="" className="text-[#6e2918]">Choose a Seva</option>
+                      <option value="akshaya-tritiya">Akshaya Tritiya Seva</option>
+                      <option value="gau-seva">Gau Seva</option>
+                      <option value="mandir">Mandir Nirman Seva</option>
+                      <option value="annadana">Annadana Seva</option>
+                    </select>
+                  </div>
+
+                  <div className="mb-6">
+                    <label htmlFor="amount" className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-800">
+                      Amount
+                      <Info className="h-4 w-4 text-gray-500" />
+                    </label>
+                    <input
+                      id="amount"
+                      type="number"
+                      placeholder="Enter Amount"
+                      value={formData.amount}
+                      onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                      className="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="mb-5">
+                    <label htmlFor="fullName" className="mb-2 block text-sm font-semibold text-gray-800">
+                      Full Name
+                    </label>
+                    <input
+                      id="fullName"
+                      type="text"
+                      placeholder="Your Full Name"
+                      value={formData.fullName}
+                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                      className="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="mb-5 grid grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="whatsapp" className="mb-2 block text-sm font-semibold text-gray-800">
+                        WhatsApp Number
+                      </label>
+                      <div className="flex gap-2">
+                        <div className="flex items-center gap-1 rounded-lg border-2 border-gray-300 bg-white px-3">
+                          <span aria-hidden="true" className="text-lg">IN</span>
+                          <span className="text-gray-700">+91</span>
+                        </div>
+                        <input
+                          id="whatsapp"
+                          type="tel"
+                          placeholder="98765 43210"
+                          value={formData.whatsapp}
+                          onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+                          className="flex-1 rounded-lg border-2 border-gray-300 bg-white px-4 py-3 placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
+                        />
                       </div>
-                      <input
-                        id="whatsapp"
-                        type="tel"
-                        placeholder="98765 43210"
-                        value={formData.whatsapp}
-                        onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                        className="flex-1 rounded-lg border-2 border-gray-300 bg-white px-4 py-3 focus:border-[#8b3a1f] focus:outline-none"
-                      />
                     </div>
                   </div>
-                </div>
 
-                <div className="mb-5">
-                  <label htmlFor="pincode" className="mb-2 block text-sm font-semibold text-gray-800">
-                    Pincode
-                  </label>
-                  <input
-                    id="pincode"
-                    type="text"
-                    placeholder="City Pincode"
-                    value={formData.pincode}
-                    onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
-                    className="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 focus:border-[#8b3a1f] focus:outline-none"
-                  />
-                </div>
-
-                <div className="mb-6 flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    id="sankalp"
-                    checked={formData.sankalp}
-                    onChange={(e) => setFormData({ ...formData, sankalp: e.target.checked })}
-                    className="mt-1 h-5 w-5 rounded border-2 border-gray-300 text-[#8b3a1f]"
-                  />
-                  <label htmlFor="sankalp" className="text-sm text-gray-700">
-                    I would like to receive Sankalp and Aarti video on my birthday.
-                  </label>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={isLoading}
-                  className="w-full rounded-lg bg-[#8b3a1f] py-3 font-bold text-white transition-colors hover:bg-[#6b2a15] disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isLoading ? 'Submitting...' : 'Donate'}
-                </button>
-
-                {submitMessage && (
-                  <div className={`mt-4 rounded-lg p-3 text-sm font-medium ${
-                    submitMessage.type === 'success'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {submitMessage.text}
+                  <div className="mb-5">
+                    <label htmlFor="pincode" className="mb-2 block text-sm font-semibold text-gray-800">
+                      Pincode
+                    </label>
+                    <input
+                      id="pincode"
+                      type="text"
+                      placeholder="City Pincode"
+                      value={formData.pincode}
+                      onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
+                      className="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
+                    />
                   </div>
-                )}
-              </div>
-            </div>
 
-            <div className="rounded-lg bg-[#fde9bf] p-6">
-              <div className="space-y-6">
+                  <div className="mb-6 flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="sankalp"
+                      checked={formData.sankalp}
+                      onChange={(e) => setFormData({ ...formData, sankalp: e.target.checked })}
+                      className="mt-1 h-5 w-5 rounded border-2 border-gray-300 text-[#8b3a1f]"
+                    />
+                    <label htmlFor="sankalp" className="text-sm text-gray-700">
+                      I would like to receive Sankalp and Aarti video on my birthday.
+                    </label>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={isLoading}
+                    className="w-full rounded-lg bg-[#8b3a1f] py-3 font-bold text-white transition-colors hover:bg-[#6b2a15] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {isLoading ? 'Submitting...' : 'Donate'}
+                  </button>
+
+                  {submitMessage && (
+                    <div className={`mt-4 rounded-lg p-3 text-sm font-medium ${
+                      submitMessage.type === 'success'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {submitMessage.text}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-lg bg-[#fde9bf] p-6">
+                <div className="space-y-6">
                 <div>
                   <h3 className="mb-4 font-bold text-[#8b3a1f]">For UPI & QR</h3>
                   <div className="mb-4 flex h-40 items-center justify-center rounded-lg bg-white p-4">
                     <div className="relative h-32 w-32 overflow-hidden rounded bg-gray-200">
                       <Image
-                        src="/Akshaya_Tritiya_seva.png"
-                        alt="QR code placeholder"
+                        src="/QR_Code.png"
+                        alt="QR code"
                         fill
                         className="object-cover"
                       />
@@ -493,108 +497,108 @@ export function DonationForm() {
                     For Bank Transfer
                     <Copy className="h-4 w-4" />
                   </h3>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-700">
-                        Account Name: <span className="font-bold text-[#8b3a1f]">Hare Krishna Movement Jaipur</span>
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleCopy('Hare Krishna Movement Jaipur', 'account')}
-                        className="text-gray-500 hover:text-[#8b3a1f]"
-                      >
-                        {copied === 'account' ? 'Copied' : <Copy className="h-4 w-4" />}
-                      </button>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-700">
-                        Account Number: <span className="font-bold text-[#8b3a1f]">677501700696</span>
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleCopy('677501700696', 'account-num')}
-                        className="text-gray-500 hover:text-[#8b3a1f]"
-                      >
-                        {copied === 'account-num' ? 'Copied' : <Copy className="h-4 w-4" />}
-                      </button>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-700">
-                        Bank Name: <span className="font-bold text-[#8b3a1f]">ICICI Bank</span>
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleCopy('ICICI Bank', 'bank')}
-                        className="text-gray-500 hover:text-[#8b3a1f]"
-                      >
-                        {copied === 'bank' ? 'Copied' : <Copy className="h-4 w-4" />}
-                      </button>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-700">
-                        IFSC Code: <span className="font-bold text-[#8b3a1f]">ICIC0007299</span>
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleCopy('ICIC0007299', 'ifsc')}
-                        className="text-gray-500 hover:text-[#8b3a1f]"
-                      >
-                        {copied === 'ifsc' ? 'Copied' : <Copy className="h-4 w-4" />}
-                      </button>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-700">
-                        Email: <span className="font-bold text-[#8b3a1f]">daan.augp@eubank</span>
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleCopy('daan.augp@eubank', 'email')}
-                        className="text-gray-500 hover:text-[#8b3a1f]"
-                      >
-                        {copied === 'email' ? 'Copied' : <Copy className="h-4 w-4" />}
-                      </button>
+                    <div className="space-y-3 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-700">
+                          Account Name: <span className="font-bold text-[#8b3a1f]">Hare Krishna Movement Jaipur</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopy('Hare Krishna Movement Jaipur', 'account')}
+                          className="text-gray-500 hover:text-[#8b3a1f]"
+                        >
+                          {copied === 'account' ? 'Copied' : <Copy className="h-4 w-4" />}
+                        </button>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-700">
+                          Account Number: <span className="font-bold text-[#8b3a1f]">677501700696</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopy('677501700696', 'account-num')}
+                          className="text-gray-500 hover:text-[#8b3a1f]"
+                        >
+                          {copied === 'account-num' ? 'Copied' : <Copy className="h-4 w-4" />}
+                        </button>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-700">
+                          Bank Name: <span className="font-bold text-[#8b3a1f]">ICICI Bank</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopy('ICICI Bank', 'bank')}
+                          className="text-gray-500 hover:text-[#8b3a1f]"
+                        >
+                          {copied === 'bank' ? 'Copied' : <Copy className="h-4 w-4" />}
+                        </button>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-700">
+                          IFSC Code: <span className="font-bold text-[#8b3a1f]">ICIC0007299</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopy('ICIC0007299', 'ifsc')}
+                          className="text-gray-500 hover:text-[#8b3a1f]"
+                        >
+                          {copied === 'ifsc' ? 'Copied' : <Copy className="h-4 w-4" />}
+                        </button>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-700">
+                          Email: <span className="font-bold text-[#8b3a1f]">daan.augp@eubank</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopy('daan.augp@eubank', 'email')}
+                          className="text-gray-500 hover:text-[#8b3a1f]"
+                        >
+                          {copied === 'email' ? 'Copied' : <Copy className="h-4 w-4" />}
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <p className="text-center text-xs italic text-gray-700">
-                  (Kindly send us a screenshot for your seva entry)
-                </p>
+                  <p className="text-center text-xs italic text-gray-700">
+                    (Kindly send us a screenshot for your seva entry)
+                  </p>
 
-                <p className="text-center text-xs text-gray-800">
-                  <span className="font-bold">By proceeding, you are agreeing to our</span>{' '}
-                  <a href="#" className="font-bold text-[#8b3a1f] hover:underline">
-                    Terms & Conditions
-                  </a>{' '}
-                  &amp;{' '}
-                  <a href="#" className="font-bold text-[#8b3a1f] hover:underline">
-                    Privacy Policy
-                  </a>
-                </p>
-
-                <div className="border-t border-gray-300 pt-4">
-                  <h4 className="mb-3 font-bold text-[#8b3a1f]">Support</h4>
-                  <p className="mb-3 text-xs text-gray-700">For more information please contact:</p>
-                  <div className="mb-2 flex items-center gap-2 text-sm">
-                    <span aria-hidden="true">Phone</span>
-                    <a href="tel:9196600716666" className="font-semibold text-[#8b3a1f] hover:underline">
-                      9196600716666
+                  <p className="text-center text-xs text-gray-800">
+                    <span className="font-bold">By proceeding, you are agreeing to our</span>{' '}
+                    <a href="#" className="font-bold text-[#8b3a1f] hover:underline">
+                      Terms & Conditions
+                    </a>{' '}
+                    &amp;{' '}
+                    <a href="#" className="font-bold text-[#8b3a1f] hover:underline">
+                      Privacy Policy
                     </a>
-                  </div>
-                  <div className="mb-4 flex items-center gap-2 text-sm">
-                    <span aria-hidden="true">Email</span>
-                    <a href="mailto:dmt@hkmjaipur.org" className="font-semibold text-[#8b3a1f] hover:underline">
-                      dmt@hkmjaipur.org
-                    </a>
-                  </div>
+                  </p>
 
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded bg-orange-500 px-3 py-1 text-xs font-bold text-white">Assured</span>
-                    <span className="text-xs">Payment Methods Accepted</span>
+                  <div className="border-t border-gray-300 pt-4">
+                    <h4 className="mb-3 font-bold text-[#8b3a1f]">Support</h4>
+                    <p className="mb-3 text-xs text-gray-700">For more information please contact:</p>
+                    <div className="mb-2 flex items-center gap-2 text-sm">
+                      <span aria-hidden="true">Phone</span>
+                      <a href="tel:9196600716666" className="font-semibold text-[#8b3a1f] hover:underline">
+                        9196600716666
+                      </a>
+                    </div>
+                    <div className="mb-4 flex items-center gap-2 text-sm">
+                      <span aria-hidden="true">Email</span>
+                      <a href="mailto:dmt@hkmjaipur.org" className="font-semibold text-[#8b3a1f] hover:underline">
+                        dmt@hkmjaipur.org
+                      </a>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded bg-orange-500 px-3 py-1 text-xs font-bold text-white">Assured</span>
+                      <span className="text-xs">Payment Methods Accepted</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
             </div>
           )}
         </div>

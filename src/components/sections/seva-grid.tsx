@@ -9,10 +9,10 @@ export function SevaGrid() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.32em] text-[#b46e2f]">Seva Offerings</p>
-            <h2 className="mt-4 font-serif text-4xl text-[#FF9933] sm:text-5xl">Choose a sacred way to participate</h2>
+            <p className="text-sm font-semibold uppercase tracking-[0.32em] text-[#6e2918]">Seva Offerings</p>
+            <h2 className="mt-4 font-serif text-4xl text-[#6e2918] sm:text-5xl">Choose a sacred way to participate</h2>
           </div>
-          <p className="max-w-2xl text-base leading-8 text-[#FF9933]">
+          <p className="max-w-2xl text-base leading-8 text-[#6e2918]">
             The original page highlights multiple seva paths. This grid recreates that offering-led layout with warm
             image cards and devotional descriptions.
           </p>
@@ -41,7 +41,7 @@ export function SevaGrid() {
                 </div>
                 <CardContent className="p-5">
                   <h3 className="font-serif text-xl text-[#6e2918]">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-7 text-[#FF9933]">{item.description}</p>
+                  <p className="mt-3 text-sm leading-7 text-[#6e2918]">{item.description}</p>
                 </CardContent>
               </Card>
             );

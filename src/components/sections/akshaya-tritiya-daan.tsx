@@ -13,7 +13,7 @@ export function AkshayaTritiyaDaan() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   return (
-    <section className="py-12 sm:py-14">
+    <section id="akshaya-tritiya-daan" className="py-12 sm:py-14">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div 
           {...fadeInUp}
@@ -79,12 +79,14 @@ export function AkshayaTritiyaDaan() {
                       {item.title}
                     </h3>
 
-                    <Button
-                      size="lg"
-                      className="mt-4 w-fit rounded-full bg-white text-[#6e2918] transition-colors hover:bg-[#f0dec0]"
-                    >
-                      Donate
-                    </Button>
+                    <a href="#donation-form">
+                      <Button
+                        size="lg"
+                        className="mt-4 w-fit rounded-full bg-white text-[#6e2918] transition-colors hover:bg-[#f0dec0]"
+                      >
+                        Donate
+                      </Button>
+                    </a>
                   </div>
                 </div>
               </motion.div>
@@ -112,12 +114,14 @@ export function AkshayaTritiyaDaan() {
                   </h3>
                 </div>
 
-                <Button
-                  size="sm"
-                  className="rounded-full bg-[#6e2918] text-white hover:bg-[#5a1f0f] transition-colors"
-                >
-                  Donate
-                </Button>
+                <a href="#donation-form">
+                  <Button
+                    size="sm"
+                    className="rounded-full bg-[#6e2918] text-white transition-colors hover:bg-[#5a1f0f]"
+                  >
+                    Donate
+                  </Button>
+                </a>
               </motion.div>
             ))
           )}

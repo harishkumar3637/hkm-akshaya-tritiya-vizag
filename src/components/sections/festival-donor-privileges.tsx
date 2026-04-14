@@ -8,16 +8,28 @@ import { Button } from "@/components/ui/button";
 
 const carouselItems = [
   {
-    src: "/Festival_Donar_Privileges_1.webp",
-    label: "Maha Prasadam",
+    src: "/Privileges/Festival_Donar_Privileges_1.png",
+    label: "",
   },
   {
-    src: "/Festival_Donar_Privileges_2.webp",
-    label: "Spiritual Kit",
+    src: "/Privileges/Festival_Donar_Privileges_2.png",
+    label: "",
   },
   {
-    src: "/Festival_Donar_Privileges_3.webp",
-    label: "Temple Blessing",
+    src: "/Privileges/Festival_Donar_Privileges_3.png",
+    label: "",
+  },
+  {
+    src: "/Privileges/Festival_Donar_Privileges_4.png",
+    label: "",
+  },
+  {
+    src: "/Privileges/Festival_Donar_Privileges_5.png",
+    label: "",
+  },
+  {
+    src: "/Privileges/Festival_Donar_Privileges_6.png",
+    label: "",
   },
 ];
 
@@ -69,10 +81,10 @@ export function FestivalDonorPrivileges() {
 
         <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
           <div className="space-y-6">
-            <div className="relative overflow-hidden rounded-xl bg-[#fde9bf] shadow-sm ring-1 ring-black/5">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-[#fde9bf] shadow-sm ring-1 ring-black/5 sm:aspect-[16/11] lg:min-h-[420px]">
               {carouselItems.map((item, index) => (
                 <motion.div
-                  key={item.label}
+                  key={`${item.src}-${index}`}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: index === currentIndex ? 1 : 0 }}
                   transition={{ duration: 0.5 }}
@@ -143,9 +155,11 @@ export function FestivalDonorPrivileges() {
               ))}
             </div>
             <div>
-              <Button size="lg" className="rounded-full bg-[#8b3a1f] px-8 py-3 text-white hover:bg-[#6b2a15]">
-                Donate Now
-              </Button>
+              <a href="#donation-form">
+                <Button size="lg" className="rounded-full bg-[#8b3a1f] px-8 py-3 text-white hover:bg-[#6b2a15]">
+                  Donate Now
+                </Button>
+              </a>
             </div>
           </div>
         </div>
