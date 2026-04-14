@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fffaf2;
+  --foreground: #FF9933;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+@theme inline {
+  --font-sans: "Manrope", "Segoe UI", sans-serif;
+  --font-serif: "Georgia", "Times New Roman", serif;
+}
+
+* {
+  border-color: transparent;
+}
+
+::selection {
+  background: #c96b1e;
+  color: #fff7eb;
+}
