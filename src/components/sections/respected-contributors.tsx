@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Search, X } from 'lucide-react';
 
 import { fadeInUp } from '@/lib/animations';
 
@@ -93,13 +94,58 @@ function ContributorRow({
 
 export function RespectedContributors() {
   const [activeTab, setActiveTab] = useState<'recent' | 'generous'>('recent');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const openModal = () => {
+    setSearchQuery('');
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSearchQuery('');
+    setIsModalOpen(false);
+  };
 
   const activeContributors = activeTab === 'recent' ? recentContributors : generousContributors;
   const rows = useMemo(() => splitIntoRows(activeContributors, 3), [activeContributors]);
+  const filteredContributors = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+
+    if (!normalizedQuery) {
+      return activeContributors;
+    }
+
+    return activeContributors.filter((contributor) =>
+      contributor.name.toLowerCase().includes(normalizedQuery)
+    );
+  }, [activeContributors, searchQuery]);
+
+  useEffect(() => {
+    if (!isModalOpen) {
+      return;
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeModal();
+      }
+    };
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleEscape);
+    };
+  }, [isModalOpen]);
 
   return (
-    <section className="bg-[#f8e9e6] py-14 sm:py-16">
-      <div className="mx-auto max-w-[1400px]">
+    <>
+      <section className="bg-[#f8e9e6] py-14 sm:py-16">
+        <div className="mx-auto max-w-[1400px]">
         <motion.h2
           {...fadeInUp}
           className="px-4 text-center font-sans text-4xl font-black tracking-tight text-[#1d1a1b] sm:text-5xl md:text-6xl"
@@ -139,12 +185,90 @@ export function RespectedContributors() {
         <div className="mt-12 flex justify-center px-4">
           <button
             type="button"
+            onClick={openModal}
             className="rounded-[18px] border-2 border-[#8b1d12] bg-transparent px-8 py-4 text-2xl font-medium text-[#1d1a1b] transition-colors hover:bg-[#8b1d12] hover:text-white"
           >
             View More
           </button>
         </div>
-      </div>
-    </section>
+        </div>
+      </section>
+
+      {isModalOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-4 py-6">
+          <div
+            className="absolute inset-0"
+            onClick={closeModal}
+            aria-hidden="true"
+          />
+
+          <div className="relative z-10 flex max-h-[92vh] w-full max-w-[640px] flex-col overflow-hidden rounded-[22px] bg-[#f8e3e3] shadow-[0_24px_80px_rgba(28,12,12,0.35)]">
+            <div className="flex items-start justify-between gap-4 px-6 pt-6 sm:px-7 sm:pt-7">
+              <div>
+                <h3 className="text-2xl font-black text-[#231f20] sm:text-[2rem]">List of Donors</h3>
+                <p className="mt-1 text-sm text-[#6b5350]">
+                  {activeTab === 'recent' ? 'Recent donor activity' : 'Most generous donor list'}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={closeModal}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border-2 border-[#8d7e7b] bg-[#f9eded] text-[#6a5b59] transition-colors hover:bg-[#f3d9d8] hover:text-[#372f30]"
+                aria-label="Close donor list"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="px-6 pt-5 sm:px-7">
+              <label className="relative block">
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8a6763]" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Search donor"
+                  className="w-full rounded-2xl border border-[#d8b5af] bg-[#fff7f5] py-3 pl-11 pr-4 text-base text-[#2a2021] outline-none transition focus:border-[#a1515d] focus:ring-2 focus:ring-[#a1515d]/15"
+                />
+              </label>
+            </div>
+
+            <div className="mt-5 overflow-y-auto px-6 pb-6 sm:px-7 sm:pb-7">
+              <div className="space-y-5">
+                {filteredContributors.length > 0 ? (
+                  filteredContributors.map((contributor) => (
+                    <article
+                      key={`${activeTab}-${contributor.name}-${contributor.amount}`}
+                      className="flex items-center gap-3 rounded-[16px] bg-[#f3d381] px-3 py-3 shadow-[0_10px_24px_rgba(143,65,30,0.08)] sm:px-4"
+                    >
+                      <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-full bg-[#f9eceb] text-xl font-bold text-[#2f2627] sm:h-14 sm:w-14">
+                        {contributor.avatar}
+                      </div>
+
+                      <div className="min-w-0">
+                        <h4 className="truncate text-lg font-bold leading-tight text-[#a1515d] sm:text-[1.65rem]">
+                          {contributor.name}
+                        </h4>
+                        <p className="mt-0.5 text-base font-bold text-[#221c1d] sm:text-[1.35rem]">
+                          Donated Rs {contributor.amount.toLocaleString('en-IN')}
+                        </p>
+                        <p className="mt-0.5 text-sm text-[#433939] sm:text-[1.05rem]">
+                          {contributor.time}
+                        </p>
+                      </div>
+                    </article>
+                  ))
+                ) : (
+                  <div className="rounded-[16px] bg-[#fff7f5] px-5 py-8 text-center text-[#6b5350]">
+                    No donor found for &quot;{searchQuery}&quot;.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 }
