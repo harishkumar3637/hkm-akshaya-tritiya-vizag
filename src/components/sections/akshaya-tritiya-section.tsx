@@ -2,9 +2,9 @@ import { Button } from "@/components/ui/button";
 
 export function AkshayaTritiyaSection() {
   return (
-    <section className="bg-gradient-to-b from-[#fde9bf] via-[#f9dfa8] to-[#fde9bf] px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+    <section className="bg-gradient-to-b from-[#fde9bf] via-[#f9dfa8] to-[#fde9bf] px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-4 flex justify-center">
+        <div className="mb-3 flex justify-center">
           <div className="inline-block rounded-full border-2 border-[#8b3a1f] px-6 py-2 bg-[#f2c26a]/20">
             <p className="text-center text-sm font-semibold tracking-widest text-[#8b3a1f] uppercase">
               Sacred Divine Opportunity
@@ -13,13 +13,13 @@ export function AkshayaTritiyaSection() {
         </div>
         <div className="relative">
           <div className="absolute -left-4 -right-4 top-0 h-1 bg-gradient-to-r from-transparent via-[#8b3a1f] to-transparent" />
-          <h2 className="py-5 text-center font-serif text-3xl font-bold text-[#5a1a0f] sm:text-4xl">
+          <h2 className="py-4 text-center font-serif text-3xl font-bold text-[#5a1a0f] sm:text-4xl">
             Akshaya Tritiya Donation 2026
           </h2>
           <div className="absolute -left-4 -right-4 bottom-0 h-1 bg-gradient-to-r from-transparent via-[#8b3a1f] to-transparent" />
         </div>
 
-        <div className="relative mx-auto mt-8 max-w-3xl rounded-2xl border-4 border-[#8b3a1f] bg-gradient-to-br from-[#fff9f0] to-[#fde9bf] px-6 py-9 shadow-lg">
+        <div className="relative mx-auto mt-6 max-w-3xl rounded-2xl border-4 border-[#8b3a1f] bg-gradient-to-br from-[#fff9f0] to-[#fde9bf] px-6 py-7 shadow-lg">
           <div className="absolute -top-5 left-8 inline-block bg-[#fde9bf] px-3">
             <span className="text-5xl font-serif text-[#8b3a1f]/30">&quot;</span>
           </div>
@@ -29,7 +29,7 @@ export function AkshayaTritiyaSection() {
             tenaiva sukrutam bhavet.
           </p>
 
-          <p className="mt-6 text-center text-base leading-relaxed text-[#333]">
+          <p className="mt-5 text-center text-base leading-relaxed text-[#333]">
             <span className="font-bold">
               Whatever charity is given on this day, whether it is very little or abundant,
               all of it certainly becomes inexhaustible (Akshaya).
@@ -45,7 +45,7 @@ export function AkshayaTritiyaSection() {
           </div>
         </div>
 
-        <div className="mt-8 flex items-center justify-center gap-6">
+        <div className="mt-6 flex items-center justify-center gap-4">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[#8b3a1f]/60" />
           <div className="flex items-center gap-2">
             <span className="text-3xl text-[#8b3a1f]">✦</span>
@@ -55,7 +55,7 @@ export function AkshayaTritiyaSection() {
           <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#8b3a1f]/60" />
         </div>
 
-        <div className="mt-10 grid items-center gap-8 rounded-2xl border-2 border-[#8b3a1f]/30 bg-white/40 p-6 backdrop-blur-sm lg:grid-cols-[minmax(360px,480px)_1fr] lg:gap-12 lg:p-8 xl:grid-cols-[minmax(420px,560px)_1fr]">
+        <div className="mt-7 grid items-center gap-6 rounded-2xl border-2 border-[#8b3a1f]/30 bg-white/40 p-5 backdrop-blur-sm lg:grid-cols-[minmax(360px,480px)_1fr] lg:gap-8 lg:p-6 xl:grid-cols-[minmax(420px,560px)_1fr]">
           <div className="overflow-hidden rounded-2xl border-4 border-[#8b3a1f] shadow-lg">
             <div className="relative aspect-video bg-black">
               <iframe
@@ -71,7 +71,7 @@ export function AkshayaTritiyaSection() {
           </div>
 
           <div className="max-w-2xl">
-            <div className="mb-4 inline-block rounded-full border border-[#8b3a1f]/50 px-4 py-1 bg-[#f2c26a]/20">
+            <div className="mb-3 inline-block rounded-full border border-[#8b3a1f]/50 px-4 py-1 bg-[#f2c26a]/20">
               <span className="text-xs font-semibold tracking-widest text-[#8b3a1f] uppercase">Divine Impact</span>
             </div>
             <h3 className="font-serif text-2xl font-bold leading-tight text-[#1a1a1a] sm:text-3xl">
@@ -80,7 +80,7 @@ export function AkshayaTritiyaSection() {
               <span className="text-[#8b3a1f]">Donate for Everlasting Blessings</span>
             </h3>
 
-            <div className="mt-6 space-y-3 border-l-4 border-[#f2c26a] pl-5">
+            <div className="mt-5 space-y-3 border-l-4 border-[#f2c26a] pl-5">
               <p className="text-sm leading-relaxed text-[#333] sm:text-base">
                 <span className="inline-block mb-2">◆</span>
                 <span>
@@ -114,14 +114,14 @@ export function AkshayaTritiyaSection() {
               </p>
             </div>
 
-            <div className="mt-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+            <div className="mt-5 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
               <a href="#donation-form" className="inline-flex items-center gap-2 text-base font-semibold text-[#5a1a0f] hover:text-[#8b3a1f] transition-colors">
                 Read More
                 <span>→</span>
               </a>
             </div>
 
-            <div className="mt-6">
+            <div className="mt-5">
               <a href="#donation-form">
                 <Button size="lg" className="rounded-full bg-gradient-to-r from-[#8b3a1f] to-[#6b3d2f] px-8 text-white hover:from-[#6b3d2f] hover:to-[#5a3428] shadow-lg transition-all">
                   Donate Now
