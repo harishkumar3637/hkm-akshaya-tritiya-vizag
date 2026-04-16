@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Akshaya Tritiya 2026 Donation Clone",
+  title: "Akshaya Tritiya Donation 2026",
   description: "Responsive frontend clone of the Akshaya Tritiya donation page.",
 };
 

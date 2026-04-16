@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { CalendarDays, ChevronDown, Copy, Info, Mail, MessageCircle } from 'lucide-react';
 import axios from 'axios';
 
+import type { DonationFormContent } from '@/data/events/types';
+
 type ActiveTab = 'indian' | 'non-indian';
 
 type FormData = {
@@ -21,13 +23,17 @@ type FormData = {
 
 type CopyField = 'account' | 'account-num' | 'bank' | 'ifsc' | 'email';
 
-export function DonationForm() {
+type DonationFormProps = {
+  content: DonationFormContent;
+};
+
+export function DonationForm({ content }: DonationFormProps) {
   const [activeTab, setActiveTab] = useState<ActiveTab>('indian');
   const [formData, setFormData] = useState<FormData>({
     seva: '',
     amount: '',
     fullName: '',
-    whatsapp: '', 
+    whatsapp: '',
     pincode: '',
     email: '',
     dateOfBirth: '',
@@ -45,9 +51,8 @@ export function DonationForm() {
   };
 
   const handleSubmit = async () => {
-    // Validate required fields
     if (!formData.seva || !formData.amount || !formData.fullName || !formData.whatsapp || !formData.pincode) {
-      setSubmitMessage({ type: 'error', text: 'Please fill in all required fields.' });
+      setSubmitMessage({ type: 'error', text: content.messages.requiredFields });
       return;
     }
 
@@ -66,8 +71,7 @@ export function DonationForm() {
       });
 
       if (response.status === 200 || response.status === 201) {
-        setSubmitMessage({ type: 'success', text: 'Donation submitted successfully! Thank you for your seva.' });
-        // Reset form
+        setSubmitMessage({ type: 'success', text: content.messages.success });
         setFormData({
           seva: '',
           amount: '',
@@ -84,7 +88,7 @@ export function DonationForm() {
       }
     } catch (error) {
       console.error('Error submitting donation:', error);
-      setSubmitMessage({ type: 'error', text: 'Failed to submit donation. Please try again or contact support.' });
+      setSubmitMessage({ type: 'error', text: content.messages.failure });
     } finally {
       setIsLoading(false);
     }
@@ -97,7 +101,7 @@ export function DonationForm() {
     >
       <div className="mx-auto max-w-7xl">
         <h2 className="mb-6 text-center text-3xl font-bold text-[#8b3a1f] sm:text-4xl">
-          Offer your Seva and receive the blessings of Sri Radha Krishna
+          {content.heading}
         </h2>
 
         <div className="mx-auto mb-6 flex max-w-3xl gap-4">
@@ -110,7 +114,7 @@ export function DonationForm() {
                 : 'border-2 border-gray-300 bg-white text-gray-700'
             }`}
           >
-            Indian Currency
+            {content.tabs.indian}
           </button>
           <button
             type="button"
@@ -121,7 +125,7 @@ export function DonationForm() {
                 : 'border-2 border-gray-300 bg-white text-gray-700'
             }`}
           >
-            Non-Indian Currency
+            {content.tabs.nonIndian}
           </button>
         </div>
 
@@ -132,7 +136,7 @@ export function DonationForm() {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label htmlFor="seva" className="mb-2 block text-sm font-semibold text-[#39180f]">
-                      Select Seva
+                      {content.selects.sevaLabel}
                     </label>
                     <div className="relative">
                       <select
@@ -140,14 +144,14 @@ export function DonationForm() {
                         value={formData.seva}
                         onChange={(e) => setFormData({ ...formData, seva: e.target.value })}
                         className={`w-full appearance-none rounded-2xl border border-[#c18372] bg-white px-5 py-4 pr-12 text-lg focus:border-[#8b3a1f] focus:outline-none ${
-                          formData.seva ? 'text-[#39180f]' : 'text-[#6e2918]'
+                          'text-[#6e2918]'
                         }`}
                       >
-                        <option value="" className="text-[#6e2918]">Akshaya Tritiya Seva</option>
-                        <option value="akshaya-tritiya">Akshaya Tritiya Seva</option>
-                        <option value="gau-seva">Gau Seva</option>
-                        <option value="mandir">Mandir Nirman Seva</option>
-                        <option value="annadana">Annadana Seva</option>
+                        {content.sevaOptions.map((option) => (
+                          <option key={option.value || option.label} value={option.value} className="text-[#6e2918]">
+                            {option.label}
+                          </option>
+                        ))}
                       </select>
                       <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8b3a1f]" />
                     </div>
@@ -155,22 +159,22 @@ export function DonationForm() {
 
                   <div>
                     <label htmlFor="amount" className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#39180f]">
-                      Amount
+                      {content.selects.amountLabel}
                       <Info className="h-4 w-4 text-[#8b3a1f]" />
                     </label>
                     <input
                       id="amount"
                       type="number"
-                      placeholder="Enter Amount"
+                      placeholder={content.placeholders.amount}
                       value={formData.amount}
                       onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                        className="w-full rounded-2xl border border-[#c18372] bg-white px-5 py-4 text-lg text-[#39180f] placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
+                      className="w-full rounded-2xl border border-[#c18372] bg-white px-5 py-4 text-lg text-[#6e2918] placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-                  {['10000', '5100', '3100', '2100', '1100', '501'].map((amount) => (
+                  {content.amountSuggestions.map((amount) => (
                     <button
                       key={amount}
                       type="button"
@@ -189,93 +193,94 @@ export function DonationForm() {
                 <div className="rounded-[28px] bg-[#f3d482] p-6 sm:p-7">
                   <div>
                     <label htmlFor="donorIdentity" className="mb-2 block text-sm font-semibold text-[#39180f]">
-                      I am
+                      {content.selects.donorIdentityLabel}
                     </label>
                     <div className="relative max-w-[320px]">
                       <select
                         id="donorIdentity"
                         value={formData.donorIdentity}
                         onChange={(e) => setFormData({ ...formData, donorIdentity: e.target.value })}
-                        className="w-full appearance-none rounded-2xl border border-transparent bg-white/75 px-4 py-3 pr-11 text-lg text-[#39180f] focus:border-[#8b3a1f] focus:outline-none"
+                        className="w-full appearance-none rounded-2xl border border-transparent bg-white/75 px-4 py-3 pr-11 text-lg text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
                       >
-                        <option value="">Select</option>
-                        <option value="individual">Individual</option>
-                        <option value="family">Family</option>
-                        <option value="organization">Organization</option>
+                        {content.donorIdentityOptions.map((option) => (
+                          <option key={option.value || option.label} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
                       </select>
                       <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8b3a1f]" />
                     </div>
                   </div>
 
                   <p className="mt-5 max-w-xl text-lg leading-8 text-[#5a3625]">
-                    *For donating in foreign currency, to comply with government regulations you need to identify yourself.
+                    {content.nonIndian.complianceNote}
                   </p>
 
                   <div className="mt-8 grid gap-5 sm:grid-cols-2">
                     <div>
                       <label htmlFor="fullName" className="mb-2 block text-sm font-semibold text-[#39180f]">
-                        Full Name
+                        {content.labels.fullName}
                       </label>
                       <input
                         id="fullName"
                         type="text"
-                        placeholder="Your Full Name"
+                        placeholder={content.placeholders.fullName}
                         value={formData.fullName}
                         onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                        className="w-full rounded-2xl border border-transparent bg-white/75 px-4 py-3 text-lg text-[#39180f] placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
+                        className="w-full rounded-2xl border border-transparent bg-white/75 px-4 py-3 text-lg text-[#6e2918] placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
                       />
                     </div>
 
                     <div>
                       <label htmlFor="whatsapp" className="mb-2 block text-sm font-semibold text-[#39180f]">
-                        WhatsApp Number
+                        {content.labels.whatsapp}
                       </label>
                       <div className="flex gap-3">
                         <div className="flex items-center rounded-2xl bg-white/80 px-3 text-xl">
-                          <span aria-hidden="true">🇮🇳</span>
+                          <span aria-hidden="true">{"\u{1F1EE}\u{1F1F3}"}</span>
                         </div>
                         <input
                           id="whatsapp"
                           type="tel"
-                          placeholder="+91"
+                          placeholder={content.placeholders.whatsappInternational}
                           value={formData.whatsapp}
                           onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                          className="min-w-0 flex-1 rounded-2xl border border-transparent bg-white/75 px-4 py-3 text-lg text-[#39180f] placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
+                          className="min-w-0 flex-1 rounded-2xl border border-transparent bg-white/75 px-4 py-3 text-lg text-[#6e2918] placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
                         />
                       </div>
                     </div>
 
                     <div>
                       <label htmlFor="email" className="mb-2 block text-sm font-semibold text-[#39180f]">
-                        Email
+                        {content.labels.email}
                       </label>
                       <input
                         id="email"
                         type="email"
-                        placeholder="Your Email"
+                        placeholder={content.placeholders.email}
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full rounded-2xl border border-transparent bg-white/75 px-4 py-3 text-lg text-[#39180f] placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
+                        className="w-full rounded-2xl border border-transparent bg-white/75 px-4 py-3 text-lg text-[#6e2918] placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
                       />
                     </div>
 
                     <div>
                       <label htmlFor="dateOfBirth" className="mb-2 block text-sm font-semibold text-[#39180f]">
-                        Date of Birth (Optional)
+                        {content.labels.dateOfBirth}
                       </label>
                       <div className="relative">
                         <input
                           id="dateOfBirth"
                           type="text"
-                          placeholder="dd/mm/yyyy"
+                          placeholder={content.placeholders.dateOfBirth}
                           value={formData.dateOfBirth}
                           onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                          className="w-full rounded-2xl border border-transparent bg-white/75 px-4 py-3 pr-12 text-lg text-[#39180f] placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
+                          className="w-full rounded-2xl border border-transparent bg-white/75 px-4 py-3 pr-12 text-lg text-[#6e2918] placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
                         />
                         <CalendarDays className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#9d5f4f]" />
                       </div>
                       <p className="mt-2 text-sm font-semibold leading-6 text-[#39180f]">
-                        Sankalp and Aarti will be performed for you on your birthday.
+                        {content.nonIndian.birthdayNote}
                       </p>
                     </div>
                   </div>
@@ -287,7 +292,7 @@ export function DonationForm() {
                       disabled={isLoading}
                       className="min-w-[220px] rounded-2xl bg-[#8b0003] px-8 py-4 text-xl font-bold text-white shadow-[0_10px_18px_rgba(139,0,3,0.18)] transition-colors hover:bg-[#6e0002] disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      {isLoading ? 'Submitting...' : 'Donate'}
+                      {isLoading ? content.submitLabels.donating : content.submitLabels.donate}
                     </button>
                   </div>
 
@@ -309,44 +314,43 @@ export function DonationForm() {
                 <div className="space-y-7 text-[#39180f]">
                   <div className="space-y-6 text-xl font-semibold leading-9">
                     <p>
-                      *By proceeding, you are agreeing to our{' '}
+                      {content.labels.termsLead}{' '}
                       <a href="#" className="font-bold text-[#7a1e13] hover:underline">
-                        Terms & Conditions
+                        {content.labels.termsLabel}
                       </a>{' '}
                       &amp;{' '}
                       <a href="#" className="font-bold text-[#7a1e13] hover:underline">
-                        Privacy Policy
+                        {content.labels.privacyLabel}
                       </a>
                     </p>
+                    <p>{content.nonIndian.legalCopy[1]}</p>
                     <p>
-                      *Under the Foreign Contribution (Regulation) Act, 2010, Registered under Section 11 (1).
-                    </p>
-                    <p>
-                      Registration Number: <span className="font-bold text-[#a12a1c]">125560332</span>
+                      {content.nonIndian.registrationNumberLabel}{' '}
+                      <span className="font-bold text-[#a12a1c]">{content.nonIndian.registrationNumber}</span>
                     </p>
                   </div>
 
                   <div>
-                    <h3 className="text-3xl font-bold text-[#a04d42]">Support</h3>
+                    <h3 className="text-3xl font-bold text-[#a04d42]">{content.labels.supportTitle}</h3>
                     <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-4 text-lg">
-                      <span>For more information please contact :</span>
+                      <span>{content.labels.supportDescription}</span>
                       <a
-                        href="tel:9196600716666"
+                        href={`tel:${content.support.phone}`}
                         className="inline-flex items-center gap-3 font-medium text-[#39180f] hover:text-[#7a1e13]"
                       >
                         <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/70 text-[#b4574a]">
                           <MessageCircle className="h-5 w-5" />
                         </span>
-                        9196600716666
+                        {content.support.phone}
                       </a>
                       <a
-                        href="mailto:dmt@hkmjaipur.org"
+                        href={`mailto:${content.support.email}`}
                         className="inline-flex items-center gap-3 font-medium text-[#39180f] hover:text-[#7a1e13]"
                       >
                         <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/70 text-[#b4574a]">
                           <Mail className="h-5 w-5" />
                         </span>
-                        dmt@hkmjaipur.org
+                        {content.support.email}
                       </a>
                     </div>
                   </div>
@@ -359,70 +363,70 @@ export function DonationForm() {
                 <div className="rounded-lg bg-[#fde9bf] p-6">
                   <div className="mb-6">
                     <label htmlFor="seva" className="mb-3 block text-sm font-semibold text-gray-800">
-                      Select Seva
+                      {content.selects.sevaLabel}
                     </label>
                     <select
                       id="seva"
                       value={formData.seva}
                       onChange={(e) => setFormData({ ...formData, seva: e.target.value })}
                       className={`w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 focus:border-[#8b3a1f] focus:outline-none ${
-                        formData.seva ? 'text-gray-800' : 'text-[#6e2918]'
+                        'text-[#6e2918]'
                       }`}
                     >
-                      <option value="" className="text-[#6e2918]">Choose a Seva</option>
-                      <option value="akshaya-tritiya">Akshaya Tritiya Seva</option>
-                      <option value="gau-seva">Gau Seva</option>
-                      <option value="mandir">Mandir Nirman Seva</option>
-                      <option value="annadana">Annadana Seva</option>
+                      {content.sevaOptions.map((option, index) => (
+                        <option key={`${option.value || option.label}-${index}`} value={option.value} className="text-[#6e2918]">
+                          {index === 0 ? 'Choose a Seva' : option.label}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
                   <div className="mb-6">
                     <label htmlFor="amount" className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-800">
-                      Amount
+                      {content.selects.amountLabel}
                       <Info className="h-4 w-4 text-gray-500" />
                     </label>
                     <input
                       id="amount"
                       type="number"
-                      placeholder="Enter Amount"
+                      placeholder={content.placeholders.amount}
                       value={formData.amount}
                       onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                      className="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
+                      className="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 text-[#6e2918] placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
                     />
                   </div>
 
                   <div className="mb-5">
                     <label htmlFor="fullName" className="mb-2 block text-sm font-semibold text-gray-800">
-                      Full Name
+                      {content.labels.fullName}
                     </label>
                     <input
                       id="fullName"
                       type="text"
-                      placeholder="Your Full Name"
+                      placeholder={content.placeholders.fullName}
                       value={formData.fullName}
                       onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                      className="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
+                      className="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 text-[#6e2918] placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
                     />
                   </div>
 
                   <div className="mb-5 grid grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="whatsapp" className="mb-2 block text-sm font-semibold text-gray-800">
-                        WhatsApp Number
+                        {content.labels.whatsapp}
                       </label>
                       <div className="flex gap-2">
                         <div className="flex items-center gap-1 rounded-lg border-2 border-gray-300 bg-white px-3">
                           <span aria-hidden="true" className="text-lg">IN</span>
-                          <span className="text-gray-700">+91</span>
+                          <span className="text-gray-700">{content.labels.currencyBadge}</span>
                         </div>
                         <input
                           id="whatsapp"
                           type="tel"
-                          placeholder="98765 43210"
+                          placeholder={content.placeholders.whatsappIndian}
                           value={formData.whatsapp}
                           onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                          className="flex-1 rounded-lg border-2 border-gray-300 bg-white px-4 py-3 placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
+                          className="flex-1 rounded-lg border-2 border-gray-300 bg-white px-4 py-3 text-[#6e2918] placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
                         />
                       </div>
                     </div>
@@ -430,15 +434,15 @@ export function DonationForm() {
 
                   <div className="mb-5">
                     <label htmlFor="pincode" className="mb-2 block text-sm font-semibold text-gray-800">
-                      Pincode
+                      {content.labels.pincode}
                     </label>
                     <input
                       id="pincode"
                       type="text"
-                      placeholder="City Pincode"
+                      placeholder={content.placeholders.pincode}
                       value={formData.pincode}
                       onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
-                      className="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
+                      className="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 text-[#6e2918] placeholder:text-[#6e2918] focus:border-[#8b3a1f] focus:outline-none"
                     />
                   </div>
 
@@ -451,7 +455,7 @@ export function DonationForm() {
                       className="mt-1 h-5 w-5 rounded border-2 border-gray-300 text-[#8b3a1f]"
                     />
                     <label htmlFor="sankalp" className="text-sm text-gray-700">
-                      I would like to receive Sankalp and Aarti video on my birthday.
+                      {content.labels.sankalp}
                     </label>
                   </div>
 
@@ -461,7 +465,7 @@ export function DonationForm() {
                     disabled={isLoading}
                     className="w-full rounded-lg bg-[#8b3a1f] py-3 font-bold text-white transition-colors hover:bg-[#6b2a15] disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {isLoading ? 'Submitting...' : 'Donate'}
+                    {isLoading ? content.submitLabels.donating : content.submitLabels.donate}
                   </button>
 
                   {submitMessage && (
@@ -479,13 +483,14 @@ export function DonationForm() {
               <div className="rounded-lg bg-[#fde9bf] p-6">
                 <div className="space-y-6">
                 <div>
-                  <h3 className="mb-4 font-bold text-[#8b3a1f]">For UPI & QR</h3>
+                  <h3 className="mb-4 font-bold text-[#8b3a1f]">{content.labels.upiTitle}</h3>
                   <div className="mb-4 flex h-40 items-center justify-center rounded-lg bg-white p-4">
                     <div className="relative h-32 w-32 overflow-hidden rounded bg-gray-200">
                       <Image
-                        src="/QR_Code.png"
+                        src={content.bankDetails.qrImage}
                         alt="QR code"
                         fill
+                        sizes="8rem"
                         className="object-cover"
                       />
                     </div>
@@ -494,17 +499,17 @@ export function DonationForm() {
 
                 <div>
                   <h3 className="mb-4 flex items-center gap-2 font-bold text-[#8b3a1f]">
-                    For Bank Transfer
+                    {content.labels.bankTitle}
                     <Copy className="h-4 w-4" />
                   </h3>
                     <div className="space-y-3 text-sm">
                       <div className="flex items-center justify-between">
                         <span className="text-gray-700">
-                          Account Name: <span className="font-bold text-[#8b3a1f]">Hare Krishna Movement Jaipur</span>
+                          Account Name: <span className="font-bold text-[#8b3a1f]">{content.bankDetails.accountName}</span>
                         </span>
                         <button
                           type="button"
-                          onClick={() => handleCopy('Hare Krishna Movement Jaipur', 'account')}
+                          onClick={() => handleCopy(content.bankDetails.accountName, 'account')}
                           className="text-gray-500 hover:text-[#8b3a1f]"
                         >
                           {copied === 'account' ? 'Copied' : <Copy className="h-4 w-4" />}
@@ -512,11 +517,11 @@ export function DonationForm() {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-700">
-                          Account Number: <span className="font-bold text-[#8b3a1f]">677501700696</span>
+                          Account Number: <span className="font-bold text-[#8b3a1f]">{content.bankDetails.accountNumber}</span>
                         </span>
                         <button
                           type="button"
-                          onClick={() => handleCopy('677501700696', 'account-num')}
+                          onClick={() => handleCopy(content.bankDetails.accountNumber, 'account-num')}
                           className="text-gray-500 hover:text-[#8b3a1f]"
                         >
                           {copied === 'account-num' ? 'Copied' : <Copy className="h-4 w-4" />}
@@ -524,11 +529,11 @@ export function DonationForm() {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-700">
-                          Bank Name: <span className="font-bold text-[#8b3a1f]">ICICI Bank</span>
+                          Bank Name: <span className="font-bold text-[#8b3a1f]">{content.bankDetails.bankName}</span>
                         </span>
                         <button
                           type="button"
-                          onClick={() => handleCopy('ICICI Bank', 'bank')}
+                          onClick={() => handleCopy(content.bankDetails.bankName, 'bank')}
                           className="text-gray-500 hover:text-[#8b3a1f]"
                         >
                           {copied === 'bank' ? 'Copied' : <Copy className="h-4 w-4" />}
@@ -536,11 +541,11 @@ export function DonationForm() {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-700">
-                          IFSC Code: <span className="font-bold text-[#8b3a1f]">ICIC0007299</span>
+                          IFSC Code: <span className="font-bold text-[#8b3a1f]">{content.bankDetails.ifsc}</span>
                         </span>
                         <button
                           type="button"
-                          onClick={() => handleCopy('ICIC0007299', 'ifsc')}
+                          onClick={() => handleCopy(content.bankDetails.ifsc, 'ifsc')}
                           className="text-gray-500 hover:text-[#8b3a1f]"
                         >
                           {copied === 'ifsc' ? 'Copied' : <Copy className="h-4 w-4" />}
@@ -548,11 +553,11 @@ export function DonationForm() {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-700">
-                          Email: <span className="font-bold text-[#8b3a1f]">daan.augp@eubank</span>
+                          Email: <span className="font-bold text-[#8b3a1f]">{content.bankDetails.email}</span>
                         </span>
                         <button
                           type="button"
-                          onClick={() => handleCopy('daan.augp@eubank', 'email')}
+                          onClick={() => handleCopy(content.bankDetails.email, 'email')}
                           className="text-gray-500 hover:text-[#8b3a1f]"
                         >
                           {copied === 'email' ? 'Copied' : <Copy className="h-4 w-4" />}
@@ -562,39 +567,39 @@ export function DonationForm() {
                   </div>
 
                   <p className="text-center text-xs italic text-gray-700">
-                    (Kindly send us a screenshot for your seva entry)
+                    {content.labels.screenshotNote}
                   </p>
 
                   <p className="text-center text-xs text-gray-800">
-                    <span className="font-bold">By proceeding, you are agreeing to our</span>{' '}
+                    <span className="font-bold">{content.labels.termsLead}</span>{' '}
                     <a href="#" className="font-bold text-[#8b3a1f] hover:underline">
-                      Terms & Conditions
+                      {content.labels.termsLabel}
                     </a>{' '}
                     &amp;{' '}
                     <a href="#" className="font-bold text-[#8b3a1f] hover:underline">
-                      Privacy Policy
+                      {content.labels.privacyLabel}
                     </a>
                   </p>
 
                   <div className="border-t border-gray-300 pt-4">
-                    <h4 className="mb-3 font-bold text-[#8b3a1f]">Support</h4>
-                    <p className="mb-3 text-xs text-gray-700">For more information please contact:</p>
+                    <h4 className="mb-3 font-bold text-[#8b3a1f]">{content.labels.supportTitle}</h4>
+                    <p className="mb-3 text-xs text-gray-700">{content.labels.supportDescription}</p>
                     <div className="mb-2 flex items-center gap-2 text-sm">
                       <span aria-hidden="true">Phone</span>
-                      <a href="tel:9196600716666" className="font-semibold text-[#8b3a1f] hover:underline">
-                        9196600716666
+                      <a href={`tel:${content.support.phone}`} className="font-semibold text-[#8b3a1f] hover:underline">
+                        {content.support.phone}
                       </a>
                     </div>
                     <div className="mb-4 flex items-center gap-2 text-sm">
                       <span aria-hidden="true">Email</span>
-                      <a href="mailto:dmt@hkmjaipur.org" className="font-semibold text-[#8b3a1f] hover:underline">
-                        dmt@hkmjaipur.org
+                      <a href={`mailto:${content.support.email}`} className="font-semibold text-[#8b3a1f] hover:underline">
+                        {content.support.email}
                       </a>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="rounded bg-orange-500 px-3 py-1 text-xs font-bold text-white">Assured</span>
-                      <span className="text-xs">Payment Methods Accepted</span>
+                      <span className="text-xs">{content.labels.paymentMethods}</span>
                     </div>
                   </div>
                 </div>

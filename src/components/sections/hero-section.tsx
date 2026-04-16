@@ -4,18 +4,13 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 
-const HERO_POSTERS = [
-  {
-    src: "/hero-secton/Poster.png",
-    alt: "Akshaya Tritiya donation poster",
-  },
-  {
-    src: "/hero-secton/Poster1.png",
-    alt: "Akshaya Tritiya festival donation poster",
-  },
-] as const;
+import type { HeroContent } from "@/data/events/types";
 
-export function HeroSection() {
+type HeroSectionProps = {
+  content: HeroContent;
+};
+
+export function HeroSection({ content }: HeroSectionProps) {
   const shouldReduceMotion = useReducedMotion();
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -25,11 +20,11 @@ export function HeroSection() {
     }
 
     const interval = window.setInterval(() => {
-      setActiveIndex((currentIndex) => (currentIndex + 1) % HERO_POSTERS.length);
+      setActiveIndex((currentIndex) => (currentIndex + 1) % content.posters.length);
     }, 4200);
 
     return () => window.clearInterval(interval);
-  }, [shouldReduceMotion]);
+  }, [content.posters.length, shouldReduceMotion]);
 
   return (
     <section className="relative w-full overflow-hidden bg-[#4f170f]">
@@ -38,7 +33,7 @@ export function HeroSection() {
           <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_top,rgba(255,213,138,0.18),transparent_68%)]" />
 
           <div className="relative h-full w-full">
-            {HERO_POSTERS.map((poster, index) => {
+            {content.posters.map((poster, index) => {
               const isActive = index === activeIndex;
 
               return (
@@ -65,7 +60,6 @@ export function HeroSection() {
                     alt={poster.alt}
                     fill
                     priority={index === 0}
-                   
                     className="object-cover"
                   />
                 </motion.div>
@@ -75,7 +69,7 @@ export function HeroSection() {
 
           <div className="absolute inset-x-0 bottom-0 flex justify-center pb-4 sm:pb-5">
             <div className="flex items-center gap-2 rounded-full bg-[#2d0f0b]/55 px-3 py-2 backdrop-blur-sm">
-              {HERO_POSTERS.map((poster, index) => (
+              {content.posters.map((poster, index) => (
                 <span
                   key={poster.src}
                   className={`h-1.5 rounded-full transition-all duration-500 ${

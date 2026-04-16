@@ -4,8 +4,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { importanceCarouselItems } from '@/lib/data';
+
 import { fadeInUp } from '@/lib/animations';
+import type { ImportanceContent } from '@/data/events/types';
 
 type ImportanceCardProps = {
   title: string;
@@ -59,7 +60,6 @@ function ImportanceCard({ title, description, image, index, isActive }: Importan
           </div>
         </div>
 
-        {/* Description overlay on image */}
         <div className={`absolute inset-0 flex items-end transition-all duration-300 ${isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
           <div className="w-full bg-gradient-to-t from-black/90 via-black/70 to-transparent p-5 rounded-t-[28px]">
             <p className="text-sm leading-7 text-white sm:text-[15px]">{description}</p>
@@ -70,7 +70,11 @@ function ImportanceCard({ title, description, image, index, isActive }: Importan
   );
 }
 
-export function ImportanceCarousel() {
+type ImportanceCarouselProps = {
+  content: ImportanceContent;
+};
+
+export function ImportanceCarousel({ content }: ImportanceCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -86,16 +90,14 @@ export function ImportanceCarousel() {
   }, []);
 
   const goToPrevious = useCallback(() => {
-    const nextIndex =
-      activeIndex === 0 ? importanceCarouselItems.length - 1 : activeIndex - 1;
+    const nextIndex = activeIndex === 0 ? content.items.length - 1 : activeIndex - 1;
     scrollToCard(nextIndex);
-  }, [activeIndex, scrollToCard]);
+  }, [activeIndex, content.items.length, scrollToCard]);
 
   const goToNext = useCallback(() => {
-    const nextIndex =
-      activeIndex === importanceCarouselItems.length - 1 ? 0 : activeIndex + 1;
+    const nextIndex = activeIndex === content.items.length - 1 ? 0 : activeIndex + 1;
     scrollToCard(nextIndex);
-  }, [activeIndex, scrollToCard]);
+  }, [activeIndex, content.items.length, scrollToCard]);
 
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -150,14 +152,13 @@ export function ImportanceCarousel() {
       <motion.div {...fadeInUp} className="relative mx-auto max-w-7xl">
         <div className="mx-auto max-w-3xl text-center">
           <span className="inline-flex rounded-full border border-[#d7b387]/35 bg-white/65 px-4 py-1 text-xs font-semibold uppercase tracking-[0.32em] text-[#9a6134] backdrop-blur">
-            Temple Significance
+            {content.eyebrow}
           </span>
           <h2 className="mt-4 font-serif text-3xl font-bold text-[#5c2417] sm:text-4xl">
-            Akshaya Tritiya Importance
+            {content.title}
           </h2>
           <p className="mt-3 text-sm leading-7 text-[#744632] sm:text-base">
-            A sacred day of divine abundance, temple seva, annadan, and auspicious beginnings
-            celebrated with devotion, gratitude, and grace.
+            {content.description}
           </p>
           <div className="mt-7 flex items-center justify-center">
             <div className="flex items-center gap-3 text-[#b9854d]">
@@ -196,7 +197,7 @@ export function ImportanceCarousel() {
             className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-3 scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             aria-label="Akshaya Tritiya importance cards"
           >
-            {importanceCarouselItems.map((item, index) => (
+            {content.items.map((item, index) => (
               <div
                 key={item.title}
                 ref={(node) => {
@@ -216,7 +217,7 @@ export function ImportanceCarousel() {
           </div>
 
           <div className="mt-6 flex items-center justify-center gap-2">
-            {importanceCarouselItems.map((item, index) => (
+            {content.items.map((item, index) => (
               <button
                 key={item.title}
                 onClick={() => scrollToCard(index)}

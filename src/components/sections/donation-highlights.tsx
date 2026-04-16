@@ -5,22 +5,26 @@ import Image from "next/image";
 import { Grid3x3, List } from "lucide-react";
 import { motion } from "framer-motion";
 
-import { akshayaTritiyaDaan } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
+import type { DonationHighlightsContent } from "@/data/events/types";
 
-export function AkshayaTritiyaDaan() {
+type DonationHighlightsProps = {
+  content: DonationHighlightsContent;
+};
+
+export function DonationHighlights({ content }: DonationHighlightsProps) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   return (
-    <section id="akshaya-tritiya-daan" className="py-12 sm:py-14">
+    <section id={content.sectionId} className="py-12 sm:py-14">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div 
           {...fadeInUp}
           className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center"
         >
           <div className="rounded-full bg-[#fde9bf] px-6 py-3">
-            <h2 className="font-serif text-2xl font-bold text-[#6e2918]">AKSHAYA TRITIYA DAAN</h2>
+            <h2 className="font-serif text-2xl font-bold text-[#6e2918]">{content.title}</h2>
           </div>
 
           <div className="flex gap-2">
@@ -55,8 +59,7 @@ export function AkshayaTritiyaDaan() {
           viewport={{ once: true }}
         >
           {viewMode === "grid" ? (
-            // Grid View
-            akshayaTritiyaDaan.map((item) => (
+            content.items.map((item) => (
               <motion.div
                 key={item.title}
                 variants={staggerItem}
@@ -70,6 +73,7 @@ export function AkshayaTritiyaDaan() {
                       src={item.image}
                       alt={item.title}
                       fill
+                      sizes="(min-width: 640px) 11rem, 100vw"
                       className="object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                   </div>
@@ -92,8 +96,7 @@ export function AkshayaTritiyaDaan() {
               </motion.div>
             ))
           ) : (
-            // List View
-            akshayaTritiyaDaan.map((item, index) => (
+            content.items.map((item, index) => (
               <motion.div
                 key={item.title}
                 variants={staggerItem}
@@ -129,7 +132,7 @@ export function AkshayaTritiyaDaan() {
 
         <div className="mt-10 flex items-center justify-center gap-4 text-[#a1672e]">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[#a1672e]/30" />
-          <div className="text-3xl">⋯ ✦ ⋯</div>
+          <div className="text-3xl">{"\u22EF \u2726 \u22EF"}</div>
           <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#a1672e]/30" />
         </div>
       </div>

@@ -1,25 +1,28 @@
 import Image from "next/image";
 
-import { sevaItems } from "@/lib/data";
 import { Card, CardContent } from "@/components/ui/card";
+import type { SevaContent } from "@/data/events/types";
 
-export function SevaGrid() {
+type SevaGridProps = {
+  content: SevaContent;
+};
+
+export function SevaGrid({ content }: SevaGridProps) {
   return (
     <section className="py-12 sm:py-14">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.32em] text-[#6e2918]">Seva Offerings</p>
-            <h2 className="mt-4 font-serif text-4xl text-[#6e2918] sm:text-5xl">Choose a sacred way to participate</h2>
+            <p className="text-sm font-semibold uppercase tracking-[0.32em] text-[#6e2918]">{content.eyebrow}</p>
+            <h2 className="mt-4 font-serif text-4xl text-[#6e2918] sm:text-5xl">{content.title}</h2>
           </div>
           <p className="max-w-2xl text-base leading-8 text-[#6e2918]">
-            The original page highlights multiple seva paths. This grid recreates that offering-led layout with warm
-            image cards and devotional descriptions.
+            {content.description}
           </p>
         </div>
 
         <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          {sevaItems.map((item) => {
+          {content.items.map((item) => {
             const Icon = item.icon;
 
             return (

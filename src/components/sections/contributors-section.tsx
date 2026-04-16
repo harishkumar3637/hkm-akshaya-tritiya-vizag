@@ -5,43 +5,7 @@ import { motion } from 'framer-motion';
 import { Search, X } from 'lucide-react';
 
 import { fadeInUp } from '@/lib/animations';
-
-type Contributor = {
-  name: string;
-  amount: number;
-  time: string;
-  avatar: string;
-};
-
-const recentContributors: Contributor[] = [
-  { name: 'Parthiv', amount: 113, time: 'about 5 hours ago', avatar: 'P' },
-  { name: 'Kumar Abhishek', amount: 103, time: 'about 6 hours ago', avatar: 'K' },
-  { name: 'Soumya Ranjan Senapati', amount: 501, time: 'about 6 hours ago', avatar: 'S' },
-  { name: 'I P Smit', amount: 201, time: 'about 4 hours ago', avatar: 'I' },
-  { name: 'Rahul kumar Ranakoti', amount: 103, time: 'about 9 hours ago', avatar: 'R' },
-  { name: 'Radheshyam Kushwaha', amount: 251, time: 'about 9 hours ago', avatar: 'R' },
-  { name: 'NP', amount: 205, time: 'about 10 hours ago', avatar: 'N' },
-  { name: 'Kamlesh Roy', amount: 301, time: 'about 6 hours ago', avatar: 'K' },
-  { name: 'Nalinikant Mohanty', amount: 511, time: 'about 11 hours ago', avatar: 'N' },
-  { name: 'Subhash Wadhwa', amount: 1122, time: 'about 11 hours ago', avatar: 'S' },
-  { name: 'Megha Bansal', amount: 103, time: 'about 11 hours ago', avatar: 'M' },
-  { name: 'Rishab Agarwal', amount: 151, time: 'about 10 hours ago', avatar: 'R' },
-];
-
-const generousContributors: Contributor[] = [
-  { name: 'Anand Sagar', amount: 33391, time: 'top supporter', avatar: 'A' },
-  { name: 'Ribhav Soni', amount: 33280, time: 'featured donor', avatar: 'R' },
-  { name: 'Atul Kumar Tawakley', amount: 33673, time: 'major patron', avatar: 'A' },
-  { name: 'Mrs Vasantben Tailo', amount: 35000, time: 'featured donor', avatar: 'M' },
-  { name: 'Dayanidhi Mishra', amount: 51100, time: 'honored patron', avatar: 'D' },
-  { name: 'Kapil Vidhani', amount: 52040, time: 'major patron', avatar: 'K' },
-  { name: 'Shivam Gupta', amount: 52040, time: 'featured donor', avatar: 'S' },
-  { name: 'Ravi Krishnamoorthy', amount: 50000, time: 'grace donor', avatar: 'R' },
-  { name: 'Abhishek Ranjan', amount: 50000, time: 'honored patron', avatar: 'A' },
-  { name: 'Akshat Punjlaut', amount: 85000, time: 'lead contributor', avatar: 'A' },
-  { name: 'Akshay Ghugal', amount: 75000, time: 'lead contributor', avatar: 'A' },
-  { name: 'Yogya Modi', amount: 140000, time: 'top contributor', avatar: 'Y' },
-];
+import type { Contributor, ContributorsContent } from '@/data/events/types';
 
 function splitIntoRows(items: Contributor[], rowCount: number) {
   return Array.from({ length: rowCount }, (_, rowIndex) =>
@@ -92,7 +56,11 @@ function ContributorRow({
   );
 }
 
-export function RespectedContributors() {
+type ContributorsSectionProps = {
+  content: ContributorsContent;
+};
+
+export function ContributorsSection({ content }: ContributorsSectionProps) {
   const [activeTab, setActiveTab] = useState<'recent' | 'generous'>('recent');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -107,7 +75,7 @@ export function RespectedContributors() {
     setIsModalOpen(false);
   };
 
-  const activeContributors = activeTab === 'recent' ? recentContributors : generousContributors;
+  const activeContributors = activeTab === 'recent' ? content.recent : content.generous;
   const rows = useMemo(() => splitIntoRows(activeContributors, 3), [activeContributors]);
   const filteredContributors = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -146,51 +114,51 @@ export function RespectedContributors() {
     <>
       <section className="bg-[#f8e9e6] py-14 sm:py-16">
         <div className="mx-auto max-w-[1400px]">
-        <motion.h2
-          {...fadeInUp}
-          className="px-4 text-center font-sans text-4xl font-black tracking-tight text-[#1d1a1b] sm:text-5xl md:text-6xl"
-        >
-          Respected Contributors
-        </motion.h2>
+          <motion.h2
+            {...fadeInUp}
+            className="px-4 text-center font-sans text-4xl font-black tracking-tight text-[#1d1a1b] sm:text-5xl md:text-6xl"
+          >
+            {content.heading}
+          </motion.h2>
 
-        <div className="mt-8 flex justify-center px-4">
-          <div className="inline-flex rounded-[20px] bg-[#f3d381] p-1.5 shadow-[0_10px_24px_rgba(143,65,30,0.08)]">
+          <div className="mt-8 flex justify-center px-4">
+            <div className="inline-flex rounded-[20px] bg-[#f3d381] p-1.5 shadow-[0_10px_24px_rgba(143,65,30,0.08)]">
+              <button
+                type="button"
+                onClick={() => setActiveTab('recent')}
+                className={`rounded-[16px] px-8 py-4 text-xl font-bold transition-all sm:min-w-[145px] ${
+                  activeTab === 'recent' ? 'bg-[#820000] text-white' : 'text-[#221c1d]'
+                }`}
+              >
+                {content.tabs.recent}
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('generous')}
+                className={`rounded-[16px] px-8 py-4 text-xl font-bold transition-all sm:min-w-[220px] ${
+                  activeTab === 'generous' ? 'bg-[#820000] text-white' : 'text-[#221c1d]'
+                }`}
+              >
+                {content.tabs.generous}
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-12 space-y-3">
+            <ContributorRow contributors={rows[0] ?? []} duration={24} />
+            <ContributorRow contributors={rows[1] ?? []} reverse duration={26} />
+            <ContributorRow contributors={rows[2] ?? []} duration={28} />
+          </div>
+
+          <div className="mt-12 flex justify-center px-4">
             <button
               type="button"
-              onClick={() => setActiveTab('recent')}
-              className={`rounded-[16px] px-8 py-4 text-xl font-bold transition-all sm:min-w-[145px] ${
-                activeTab === 'recent' ? 'bg-[#820000] text-white' : 'text-[#221c1d]'
-              }`}
+              onClick={openModal}
+              className="rounded-[18px] border-2 border-[#8b1d12] bg-transparent px-8 py-4 text-2xl font-medium text-[#1d1a1b] transition-colors hover:bg-[#8b1d12] hover:text-white"
             >
-              Recent
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('generous')}
-              className={`rounded-[16px] px-8 py-4 text-xl font-bold transition-all sm:min-w-[220px] ${
-                activeTab === 'generous' ? 'bg-[#820000] text-white' : 'text-[#221c1d]'
-              }`}
-            >
-              Most Generous
+              View More
             </button>
           </div>
-        </div>
-
-        <div className="mt-12 space-y-3">
-          <ContributorRow contributors={rows[0] ?? []} duration={24} />
-          <ContributorRow contributors={rows[1] ?? []} reverse duration={26} />
-          <ContributorRow contributors={rows[2] ?? []} duration={28} />
-        </div>
-
-        <div className="mt-12 flex justify-center px-4">
-          <button
-            type="button"
-            onClick={openModal}
-            className="rounded-[18px] border-2 border-[#8b1d12] bg-transparent px-8 py-4 text-2xl font-medium text-[#1d1a1b] transition-colors hover:bg-[#8b1d12] hover:text-white"
-          >
-            View More
-          </button>
-        </div>
         </div>
       </section>
 
@@ -205,9 +173,9 @@ export function RespectedContributors() {
           <div className="relative z-10 flex max-h-[92vh] w-full max-w-[640px] flex-col overflow-hidden rounded-[22px] bg-[#f8e3e3] shadow-[0_24px_80px_rgba(28,12,12,0.35)]">
             <div className="flex items-start justify-between gap-4 px-6 pt-6 sm:px-7 sm:pt-7">
               <div>
-                <h3 className="text-2xl font-black text-[#231f20] sm:text-[2rem]">List of Donors</h3>
+                <h3 className="text-2xl font-black text-[#231f20] sm:text-[2rem]">{content.modal.title}</h3>
                 <p className="mt-1 text-sm text-[#6b5350]">
-                  {activeTab === 'recent' ? 'Recent donor activity' : 'Most generous donor list'}
+                  {activeTab === 'recent' ? content.modal.recentSubtitle : content.modal.generousSubtitle}
                 </p>
               </div>
 
@@ -228,7 +196,7 @@ export function RespectedContributors() {
                   type="text"
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder="Search donor"
+                  placeholder={content.modal.searchPlaceholder}
                   className="w-full rounded-2xl border border-[#d8b5af] bg-[#fff7f5] py-3 pl-11 pr-4 text-base text-[#2a2021] outline-none transition focus:border-[#a1515d] focus:ring-2 focus:ring-[#a1515d]/15"
                 />
               </label>
@@ -261,7 +229,7 @@ export function RespectedContributors() {
                   ))
                 ) : (
                   <div className="rounded-[16px] bg-[#fff7f5] px-5 py-8 text-center text-[#6b5350]">
-                    No donor found for &quot;{searchQuery}&quot;.
+                    {content.modal.emptyStatePrefix} &quot;{searchQuery}&quot;.
                   </div>
                 )}
               </div>

@@ -4,56 +4,26 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
+
 import { Button } from "@/components/ui/button";
+import type { DonorPrivilegesContent } from "@/data/events/types";
 
-const carouselItems = [
-  {
-    src: "/Privileges/Festival_Donar_Privileges_1.png",
-    label: "",
-  },
-  {
-    src: "/Privileges/Festival_Donar_Privileges_2.png",
-    label: "",
-  },
-  {
-    src: "/Privileges/Festival_Donar_Privileges_3.png",
-    label: "",
-  },
-  {
-    src: "/Privileges/Festival_Donar_Privileges_4.png",
-    label: "",
-  },
-  {
-    src: "/Privileges/Festival_Donar_Privileges_5.png",
-    label: "",
-  },
-  {
-    src: "/Privileges/Festival_Donar_Privileges_6.png",
-    label: "",
-  },
-];
+type DonorPrivilegesProps = {
+  content: DonorPrivilegesContent;
+};
 
-const privileges = [
-  "On Donation of ₹1100 or above, you will receive Maha Prasadam blessed by the temple.",
-  "Receive Narasimha Kavach Sutra at your home for protection and spiritual growth.",
-  "Your name is offered in special prayers before Sri Sri Krishna-Balaram.",
-  "Certificate of appreciation for your generous contribution.",
-  "Access to exclusive updates and blessings from the donor community.",
-  "Lifetime remembrance in our temple's donor wall of honor.",
-];
-
-export function FestivalDonorPrivileges() {
+export function DonorPrivileges({ content }: DonorPrivilegesProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [autoplay, setAutoplay] = useState(true);
 
   useEffect(() => {
     if (!autoplay) return;
     const interval = window.setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % carouselItems.length);
+      setCurrentIndex((prev) => (prev + 1) % content.carouselItems.length);
     }, 4500);
 
     return () => window.clearInterval(interval);
-  }, [autoplay]);
+  }, [autoplay, content.carouselItems.length]);
 
   const goToSlide = (index: number) => {
     setAutoplay(false);
@@ -62,12 +32,12 @@ export function FestivalDonorPrivileges() {
 
   const movePrevious = () => {
     setAutoplay(false);
-    setCurrentIndex((prev) => (prev - 1 + carouselItems.length) % carouselItems.length);
+    setCurrentIndex((prev) => (prev - 1 + content.carouselItems.length) % content.carouselItems.length);
   };
 
   const moveNext = () => {
     setAutoplay(false);
-    setCurrentIndex((prev) => (prev + 1) % carouselItems.length);
+    setCurrentIndex((prev) => (prev + 1) % content.carouselItems.length);
   };
 
   return (
@@ -75,14 +45,14 @@ export function FestivalDonorPrivileges() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex items-center justify-center gap-4 text-[#a1672e]">
           <div className="h-px flex-1 bg-linear-to-r from-transparent to-[#a1672e]/30" />
-          <div className="text-3xl">⋯ ✦ ⋯</div>
+          <div className="text-3xl">{"\u22EF \u2726 \u22EF"}</div>
           <div className="h-px flex-1 bg-linear-to-l from-transparent to-[#a1672e]/30" />
         </div>
 
         <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
           <div className="space-y-6">
             <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-[#fde9bf] shadow-sm ring-1 ring-black/5 sm:aspect-[16/11] lg:min-h-[420px]">
-              {carouselItems.map((item, index) => (
+              {content.carouselItems.map((item, index) => (
                 <motion.div
                   key={`${item.src}-${index}`}
                   initial={{ opacity: 0 }}
@@ -125,7 +95,7 @@ export function FestivalDonorPrivileges() {
             </div>
 
             <div className="flex justify-center gap-2">
-              {carouselItems.map((_, index) => (
+              {content.carouselItems.map((_, index) => (
                 <button
                   key={index}
                   type="button"
@@ -141,11 +111,11 @@ export function FestivalDonorPrivileges() {
           <div className="flex flex-col justify-center gap-5">
             <div>
               <h2 className="text-3xl font-serif font-bold text-[#6e2918] sm:text-4xl">
-                Festival Donor Privileges
+                {content.title}
               </h2>
             </div>
             <div className="space-y-4">
-              {privileges.map((item, index) => (
+              {content.privileges.map((item, index) => (
                 <div key={index} className="flex gap-4">
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#fde9bf] text-sm font-semibold text-[#6e2918]">
                     {index + 1}
@@ -157,7 +127,7 @@ export function FestivalDonorPrivileges() {
             <div>
               <a href="#donation-form">
                 <Button size="lg" className="rounded-full bg-[#8b3a1f] px-8 py-3 text-white hover:bg-[#6b2a15]">
-                  Donate Now
+                  {content.donateLabel}
                 </Button>
               </a>
             </div>
@@ -166,7 +136,7 @@ export function FestivalDonorPrivileges() {
 
         <div className="mt-8 flex items-center justify-center gap-4 text-[#a1672e]">
           <div className="h-px flex-1 bg-linear-to-r from-transparent to-[#a1672e]/30" />
-          <div className="text-3xl">⋯ ✦ ⋯</div>
+          <div className="text-3xl">{"\u22EF \u2726 \u22EF"}</div>
           <div className="h-px flex-1 bg-linear-to-l from-transparent to-[#a1672e]/30" />
         </div>
       </div>
