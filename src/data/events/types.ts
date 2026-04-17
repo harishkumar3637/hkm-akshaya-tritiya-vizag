@@ -1,7 +1,8 @@
 import type { LucideIcon } from "lucide-react";
 
 export type HeroPoster = {
-  src: string;
+  desktopSrc: string;
+  mobileSrc: string;
   alt: string;
 };
 

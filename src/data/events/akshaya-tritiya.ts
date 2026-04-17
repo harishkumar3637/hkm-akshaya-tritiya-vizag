@@ -10,11 +10,13 @@ export const akshayaTritiyaEvent: EventPageData = {
   hero: {
     posters: [
       {
-        src: "/hero-secton/Poster.png",
+        desktopSrc: "/hero-secton/desktop-version-poster1.png",
+        mobileSrc: "/hero-secton/mobile-version-poster1.png",
         alt: "Akshaya Tritiya donation poster",
       },
       {
-        src: "/hero-secton/Poster1.png",
+        desktopSrc: "/hero-secton/desktop-version-poster2.png",
+        mobileSrc: "/hero-secton/mobile-version-poster2.png",
         alt: "Akshaya Tritiya festival donation poster",
       },
     ],

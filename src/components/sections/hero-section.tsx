@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 
 import type { HeroContent } from "@/data/events/types";
+import { ResponsivePoster } from "@/components/ui/responsive-poster";
 
 type HeroSectionProps = {
   content: HeroContent;
@@ -38,7 +38,7 @@ export function HeroSection({ content }: HeroSectionProps) {
 
               return (
                 <motion.div
-                  key={poster.src}
+                  key={poster.desktopSrc}
                   initial={false}
                   animate={
                     shouldReduceMotion
@@ -55,12 +55,17 @@ export function HeroSection({ content }: HeroSectionProps) {
                   className="absolute inset-0"
                   aria-hidden={!isActive}
                 >
-                  <Image
-                    src={poster.src}
+                  <ResponsivePoster
+                    src={poster.mobileSrc}
                     alt={poster.alt}
-                    fill
-                    priority={index === 0}
-                    className="object-cover"
+                    mode="contain"
+                    className="aspect-auto h-full min-h-0 rounded-none border-0 bg-transparent shadow-none md:hidden"
+                  />
+                  <ResponsivePoster
+                    src={poster.desktopSrc}
+                    alt={poster.alt}
+                    mode="contain"
+                    className="hidden aspect-auto h-full min-h-0 rounded-none border-0 bg-transparent shadow-none md:block"
                   />
                 </motion.div>
               );
@@ -71,7 +76,7 @@ export function HeroSection({ content }: HeroSectionProps) {
             <div className="flex items-center gap-2 rounded-full bg-[#2d0f0b]/55 px-3 py-2 backdrop-blur-sm">
               {content.posters.map((poster, index) => (
                 <span
-                  key={poster.src}
+                  key={poster.desktopSrc}
                   className={`h-1.5 rounded-full transition-all duration-500 ${
                     index === activeIndex ? "w-7 bg-[#ffd58a]" : "w-2 bg-white/40"
                   }`}
