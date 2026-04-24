@@ -7,7 +7,9 @@ import { HeroSection } from "@/components/sections/hero-section";
 import { ImpactSection } from "@/components/sections/impact-section";
 import { ImportanceCarousel } from "@/components/sections/importance-carousel";
 import { ContributorsSection } from "@/components/sections/contributors-section";
+import { GalleryCarousel } from "@/components/sections/gallery-carousel";
 import { SevaGrid } from "@/components/sections/seva-grid";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import type { EventPageData } from "@/data/events/types";
 
 type EventTemplateProps = {
@@ -16,29 +18,34 @@ type EventTemplateProps = {
 
 export function EventTemplate({ event }: EventTemplateProps) {
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[linear-gradient(180deg,#fffaf2_0%,#fff3df_42%,#fff8ef_100%)]">
+    <main
+      data-event-theme={event.theme.name}
+      className="min-h-screen overflow-x-hidden bg-[image:var(--appBackgroundGradient)] text-textBody"
+    >
       <HeroSection content={event.hero} />
-      <div className="bg-[#fff4e4]">
+      <div className="bg-sectionAltBackground">
         <EventOverviewSection content={event.overview} />
       </div>
       <ImportanceCarousel content={event.importance} />
-      <div className="bg-[#fffaf2]">
+      <div className="bg-sectionBackground">
         <ImpactSection content={event.impact} />
       </div>
-      <div className="bg-[#fff4e4]">
+      <div className="bg-sectionAltBackground">
         <DonorPrivileges content={event.privileges} />
       </div>
-      <div className="bg-[#fffaf2]">
+      <div className="bg-sectionBackground">
         <DonationHighlights content={event.donationHighlights} />
       </div>
-      <div className="bg-[#fff4e4]">
+      <div className="bg-sectionAltBackground">
         <SevaGrid content={event.seva} />
       </div>
       <DonationForm content={event.donationForm} />
-      <div className="bg-[#fffaf2]">
+      <div className="bg-sectionBackground">
         <ContributorsSection content={event.contributors} />
       </div>
+      <GalleryCarousel content={event.gallery} />
       <Footer />
+      <ThemeSwitcher />
     </main>
   );
 }

@@ -27,9 +27,9 @@ export function HeroSection({ content }: HeroSectionProps) {
   }, [content.posters.length, shouldReduceMotion]);
 
   return (
-    <section className="relative w-full overflow-hidden bg-[#4f170f]">
+    <section className="relative w-full overflow-hidden bg-[var(--heroBackground)]">
       <div className="h-[60vh] min-h-[320px] w-full sm:h-[66vh] lg:h-[72vh]">
-        <div className="relative h-full overflow-hidden border-b border-[#f3d8a4]/20 bg-[#4f170f] shadow-[0_20px_48px_rgba(39,10,6,0.22)]">
+        <div className="relative h-full overflow-hidden border-b border-[color-mix(in_srgb,var(--decorativeAccent)_20%,transparent)] bg-[var(--heroBackground)] shadow-[0_20px_48px_color-mix(in_srgb,var(--shadowColor)_92%,transparent)]">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_top,rgba(255,213,138,0.18),transparent_68%)]" />
 
           <div className="relative h-full w-full">
@@ -73,12 +73,12 @@ export function HeroSection({ content }: HeroSectionProps) {
           </div>
 
           <div className="absolute inset-x-0 bottom-0 flex justify-center pb-4 sm:pb-5">
-            <div className="flex items-center gap-2 rounded-full bg-[#2d0f0b]/55 px-3 py-2 backdrop-blur-sm">
+            <div className="flex items-center gap-2 rounded-full bg-[color-mix(in_srgb,var(--heroOverlay)_55%,transparent)] px-3 py-2 backdrop-blur-sm">
               {content.posters.map((poster, index) => (
                 <span
                   key={poster.desktopSrc}
                   className={`h-1.5 rounded-full transition-all duration-500 ${
-                    index === activeIndex ? "w-7 bg-[#ffd58a]" : "w-2 bg-white/40"
+                    index === activeIndex ? "w-7 bg-[var(--decorativeAccent)]" : "w-2 bg-white/40"
                   }`}
                   aria-hidden="true"
                 />

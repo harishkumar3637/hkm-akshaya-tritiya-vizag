@@ -43,15 +43,15 @@ export function DonorPrivileges({ content }: DonorPrivilegesProps) {
   return (
     <section className="py-12 sm:py-14">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-center justify-center gap-4 text-[#a1672e]">
-          <div className="h-px flex-1 bg-linear-to-r from-transparent to-[#a1672e]/30" />
+        <div className="mb-8 flex items-center justify-center gap-4 text-[var(--textMuted)]">
+          <div className="h-px flex-1 bg-linear-to-r from-transparent to-[color-mix(in_srgb,var(--textMuted)_30%,transparent)]" />
           <div className="text-3xl">{"\u22EF \u2726 \u22EF"}</div>
-          <div className="h-px flex-1 bg-linear-to-l from-transparent to-[#a1672e]/30" />
+          <div className="h-px flex-1 bg-linear-to-l from-transparent to-[color-mix(in_srgb,var(--textMuted)_30%,transparent)]" />
         </div>
 
         <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
           <div className="space-y-6">
-            <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-[#fde9bf] shadow-sm ring-1 ring-black/5 sm:aspect-[16/11] lg:min-h-[420px]">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-[var(--decorativeSoft)] shadow-sm ring-1 ring-black/5 sm:aspect-[16/11] lg:min-h-[420px]">
               {content.carouselItems.map((item, index) => (
                 <motion.div
                   key={`${item.src}-${index}`}
@@ -101,7 +101,7 @@ export function DonorPrivileges({ content }: DonorPrivilegesProps) {
                   type="button"
                   onClick={() => goToSlide(index)}
                   className={`rounded-full transition-all ${
-                    index === currentIndex ? 'h-2.5 w-10 bg-[#8b3a1f]' : 'h-2.5 w-2.5 bg-[#d4a574]/50'
+                    index === currentIndex ? 'h-2.5 w-10 bg-[var(--buttonPrimary)]' : 'h-2.5 w-2.5 bg-[color-mix(in_srgb,var(--textMuted)_50%,transparent)]'
                   }`}
                 />
               ))}
@@ -110,23 +110,23 @@ export function DonorPrivileges({ content }: DonorPrivilegesProps) {
 
           <div className="flex flex-col justify-center gap-5">
             <div>
-              <h2 className="text-3xl font-serif font-bold text-[#6e2918] sm:text-4xl">
+              <h2 className="text-3xl font-serif font-bold text-[var(--textBody)] sm:text-4xl">
                 {content.title}
               </h2>
             </div>
             <div className="space-y-4">
               {content.privileges.map((item, index) => (
                 <div key={index} className="flex gap-4">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#fde9bf] text-sm font-semibold text-[#6e2918]">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--decorativeSoft)] text-sm font-semibold text-[var(--textBody)]">
                     {index + 1}
                   </span>
-                  <p className="text-base leading-7 text-[#4e3725]">{item}</p>
+                  <p className="text-base leading-7 text-[var(--textMuted)]">{item}</p>
                 </div>
               ))}
             </div>
             <div>
               <a href="#donation-form">
-                <Button size="lg" className="rounded-full bg-[#8b3a1f] px-8 py-3 text-white hover:bg-[#6b2a15]">
+                <Button size="lg" className="rounded-full bg-[var(--buttonPrimary)] px-8 py-3 text-[var(--textOnAccent)] hover:bg-[var(--buttonHover)]">
                   {content.donateLabel}
                 </Button>
               </a>
@@ -134,10 +134,10 @@ export function DonorPrivileges({ content }: DonorPrivilegesProps) {
           </div>
         </div>
 
-        <div className="mt-8 flex items-center justify-center gap-4 text-[#a1672e]">
-          <div className="h-px flex-1 bg-linear-to-r from-transparent to-[#a1672e]/30" />
+        <div className="mt-8 flex items-center justify-center gap-4 text-[var(--textMuted)]">
+          <div className="h-px flex-1 bg-linear-to-r from-transparent to-[color-mix(in_srgb,var(--textMuted)_30%,transparent)]" />
           <div className="text-3xl">{"\u22EF \u2726 \u22EF"}</div>
-          <div className="h-px flex-1 bg-linear-to-l from-transparent to-[#a1672e]/30" />
+          <div className="h-px flex-1 bg-linear-to-l from-transparent to-[color-mix(in_srgb,var(--textMuted)_30%,transparent)]" />
         </div>
       </div>
     </section>

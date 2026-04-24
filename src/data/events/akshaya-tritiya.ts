@@ -1,9 +1,11 @@
 import { Flower2, Landmark, Soup, Sparkles } from "lucide-react";
 
 import type { EventPageData } from "@/data/events/types";
+import { themes } from "@/lib/themes";
 
 export const akshayaTritiyaEvent: EventPageData = {
   slug: "akshaya-tritiya",
+  theme: themes["akshaya-tritiya"],
 
           // hero-section
 
@@ -156,6 +158,16 @@ export const akshayaTritiyaEvent: EventPageData = {
       { title: "Annadana Seva", image: "/Annadaan_Seva.jpg" },
     ],
   },
+
+  gallery: {
+    title: "Gallery",
+    items: [
+      { src: "/Mandir_Nirman_Seva.jpg", label: "Mandir Nirman" },
+      { src: "/Chandan_Alankar_Seva.png", label: "Narasimha Yagna" },
+      { src: "/Gau_Seva.jpg", label: "Gau Seva" },
+      { src: "/Annadaan_Seva.jpg", label: "Annadaan Seva" },
+    ],
+  },
    
       //seva-grid-dection
 
@@ -171,6 +183,7 @@ export const akshayaTritiyaEvent: EventPageData = {
           "Support nourishing fodder, shelter care, and loving protection for the temple cows.",
         image: "/Gau_Seva.jpg",
         icon: Flower2,
+        iconName: "flower",
       },
       {
         title: "Annadan",
@@ -178,6 +191,7 @@ export const akshayaTritiyaEvent: EventPageData = {
           "Help serve nourishing prasadam to devotees and visiting families on this sacred day.",
         image: "/Annadaan_Seva.jpg",
         icon: Soup,
+        iconName: "soup",
       },
       {
         title: "Temple Seva",
@@ -185,6 +199,7 @@ export const akshayaTritiyaEvent: EventPageData = {
           "Contribute toward temple upkeep, floral decoration, lamps, and festive arrangements.",
         image: "/Mandir_Nirman_Seva.jpg",
         icon: Landmark,
+        iconName: "landmark",
       },
       {
         title: "Ritual Offerings",
@@ -192,6 +207,7 @@ export const akshayaTritiyaEvent: EventPageData = {
           "Offer vastra, bhoga, flowers, and worship ingredients for the Akshaya Tritiya celebrations.",
         image: "/Chandan_Alankar_Seva.png",
         icon: Sparkles,
+        iconName: "sparkles",
       },
     ],
   },
@@ -245,87 +261,32 @@ export const akshayaTritiyaEvent: EventPageData = {
 
   donationForm: {
     heading: "Offer your Seva and receive the blessings of Sri Radha Krishna",
-    tabs: {
-      indian: "Indian Currency",
-      nonIndian: "Non-Indian Currency",
-    },
-    selects: {
-      sevaLabel: "Select Seva",
-      amountLabel: "Amount",
-      donorIdentityLabel: "I am",
-    },
-    placeholders: {
-      amount: "Enter Amount",
-      fullName: "Your Full Name",
-      whatsappInternational: "+91",
-      whatsappIndian: "99999 99999",
-      email: "Your Email",
-      dateOfBirth: "dd/mm/yyyy",
-      pincode: "City Pincode",
-    },
-    sevaOptions: [
-      { value: "", label: "Akshaya Tritiya Seva" },
-      { value: "akshaya-tritiya", label: "Akshaya Tritiya Seva" },
-      { value: "gau-seva", label: "Gau Seva" },
-      { value: "mandir", label: "Mandir Nirman Seva" },
-      { value: "annadana", label: "Annadana Seva" },
-    ],
-    amountSuggestions: ["10000", "5100", "3100", "2100", "1100", "501"],
-    donorIdentityOptions: [
-      { value: "", label: "Select" },
-      { value: "individual", label: "Individual" },
-      { value: "family", label: "Family" },
-      { value: "organization", label: "Organization" },
-    ],
-    labels: {
-      fullName: "Full Name",
-      whatsapp: "WhatsApp Number",
-      email: "Email",
-      dateOfBirth: "Date of Birth (Optional)",
-      pincode: "Pincode",
-      sankalp: "I would like to receive Sankalp and Aarti video on my birthday.",
-      termsLead: "By proceeding, you are agreeing to our",
-      termsLabel: "Terms & Conditions",
-      privacyLabel: "Privacy Policy",
-      supportTitle: "Support",
-      supportDescription: "For more information please contact:",
-      upiTitle: "For UPI & QR",
-      bankTitle: "For Bank Transfer",
-      screenshotNote: "(Kindly send us a screenshot for your seva entry)",
-      paymentMethods: "Payment Methods Accepted",
-      currencyBadge: "+91",
-    },
-    bankDetails: {
-      accountName: "Hare Krishna Movement Vizag",
-      accountNumber: "677501700696",
-      bankName: "ICICI Bank",
-      ifsc: "ICIC0007299",
-      email: "daan.augp@eubank",
-      qrImage: "/QR_Code.png",
-    },
-    nonIndian: {
-      complianceNote:
-        "*For donating in foreign currency, to comply with government regulations you need to identify yourself.",
-      birthdayNote: "Sankalp and Aarti will be performed for you on your birthday.",
-      legalCopy: [
-        "*By proceeding, you are agreeing to our Terms & Conditions & Privacy Policy",
-        "*Under the Foreign Contribution (Regulation) Act, 2010, Registered under Section 11 (1).",
-      ],
-      registrationNumberLabel: "Registration Number:",
-      registrationNumber: "125560332",
+    notice: {
+      title: "Gentle Request:",
+      text: "While doing Paytm/UPI/Bank (NEFT/RTGS), please send screenshot along with complete address and PAN details on WhatsApp",
     },
     support: {
       phone: "9196600716666",
       email: "dmt@hkmjaipur.org",
     },
-    submitLabels: {
-      donate: "Donate",
-      donating: "Submitting...",
+    bank: {
+      tag: "For Bank Transfer",
+      title: "Donation Through NEFT/RTGS",
+      fields: {
+        beneficiaryName: "Hare Krishna Movement Vizag",
+        bankName: "ICICI Bank",
+        accountNumber: "677501700696",
+        ifscCode: "ICIC0007299",
+      },
     },
-    messages: {
-      requiredFields: "Please fill in all required fields.",
-      success: "Donation submitted successfully! Thank you for your seva.",
-      failure: "Failed to submit donation. Please try again or contact support.",
+    upi: {
+      tag: "For UPI & QR",
+      upiId: "daan.augp@eubank",
+      buttonLabel: "Pay by UPI ID",
+      qrTitle: "Scan QR Code",
+      qrImage: "/QR_Code.png",
+      description: "Scan using any supported UPI app and share the payment screenshot for seva confirmation.",
     },
+    screenshotNote: "(Kindly send us a screenshot for your seva entry)",
   },
 };

@@ -23,8 +23,8 @@ export function DonationHighlights({ content }: DonationHighlightsProps) {
           {...fadeInUp}
           className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center"
         >
-          <div className="rounded-full bg-[#fde9bf] px-6 py-3">
-            <h2 className="font-serif text-2xl font-bold text-[#6e2918]">{content.title}</h2>
+          <div className="rounded-full bg-[var(--decorativeSoft)] px-6 py-3">
+            <h2 className="font-serif text-2xl font-bold text-[var(--textBody)]">{content.title}</h2>
           </div>
 
           <div className="flex gap-2">
@@ -65,7 +65,7 @@ export function DonationHighlights({ content }: DonationHighlightsProps) {
                 variants={staggerItem}
                 whileHover={{ scale: 1.02, y: -5 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 10 }}
-                className="group overflow-hidden rounded-3xl bg-white shadow-sm transition-all hover:shadow-lg"
+                className="group overflow-hidden rounded-3xl bg-[var(--cardBackground)] shadow-sm transition-all hover:shadow-lg"
               >
                 <div className="flex h-auto flex-col items-stretch sm:h-56 sm:flex-row">
                   <div className="relative h-40 w-full flex-shrink-0 overflow-hidden sm:h-full sm:w-44">
@@ -78,7 +78,7 @@ export function DonationHighlights({ content }: DonationHighlightsProps) {
                     />
                   </div>
 
-                  <div className="flex flex-1 flex-col justify-between bg-[#6e2918] p-5 text-white">
+                  <div className="flex flex-1 flex-col justify-between bg-[var(--textBody)] p-5 text-[var(--textOnAccent)]">
                     <h3 className="font-serif text-xl font-bold sm:text-2xl leading-tight">
                       {item.title}
                     </h3>
@@ -86,7 +86,7 @@ export function DonationHighlights({ content }: DonationHighlightsProps) {
                     <a href="#donation-form">
                       <Button
                         size="lg"
-                        className="mt-4 w-fit rounded-full bg-white text-[#6e2918] transition-colors hover:bg-[#f0dec0]"
+                        className="mt-4 w-fit rounded-full bg-white text-[var(--textBody)] transition-colors hover:bg-[var(--borderSubtle)]"
                       >
                         Donate
                       </Button>
@@ -104,15 +104,15 @@ export function DonationHighlights({ content }: DonationHighlightsProps) {
                 transition={{ type: 'spring', stiffness: 300, damping: 10 }}
                 className={`flex items-center justify-between rounded-2xl px-5 py-4 transition-all ${
                   index % 2 === 0
-                    ? 'bg-[#fde9bf] hover:bg-[#fcd896]'
-                    : 'bg-[#f5dca3] hover:bg-[#f0d491]'
+                    ? 'bg-[var(--decorativeSoft)] hover:brightness-95'
+                    : 'bg-[var(--decorativeAccent)] hover:brightness-95'
                 }`}
               >
                 <div className="flex items-center gap-4">
-                  <span className="font-serif text-lg font-bold text-[#6e2918] w-8">
+                  <span className="w-8 font-serif text-lg font-bold text-[var(--textBody)]">
                     {index + 1}.
                   </span>
-                  <h3 className="font-serif text-lg font-semibold text-[#6e2918]">
+                  <h3 className="font-serif text-lg font-semibold text-[var(--textBody)]">
                     {item.title}
                   </h3>
                 </div>
@@ -120,7 +120,7 @@ export function DonationHighlights({ content }: DonationHighlightsProps) {
                 <a href="#donation-form">
                   <Button
                     size="sm"
-                    className="rounded-full bg-[#6e2918] text-white transition-colors hover:bg-[#5a1f0f]"
+                    className="rounded-full bg-[var(--textBody)] text-[var(--textOnAccent)] transition-colors hover:bg-[var(--buttonHover)]"
                   >
                     Donate
                   </Button>
@@ -130,10 +130,10 @@ export function DonationHighlights({ content }: DonationHighlightsProps) {
           )}
         </motion.div>
 
-        <div className="mt-10 flex items-center justify-center gap-4 text-[#a1672e]">
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[#a1672e]/30" />
+        <div className="mt-10 flex items-center justify-center gap-4 text-[var(--textMuted)]">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[color-mix(in_srgb,var(--textMuted)_30%,transparent)]" />
           <div className="text-3xl">{"\u22EF \u2726 \u22EF"}</div>
-          <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#a1672e]/30" />
+          <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[color-mix(in_srgb,var(--textMuted)_30%,transparent)]" />
         </div>
       </div>
     </section>

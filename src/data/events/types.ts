@@ -1,10 +1,15 @@
 import type { LucideIcon } from "lucide-react";
 
+import type { AppTheme } from "@/lib/themes";
+import type { EventIconName } from "@/lib/event-icons";
+
 export type HeroPoster = {
   desktopSrc: string;
   mobileSrc: string;
   alt: string;
 };
+
+export type EventTheme = AppTheme;
 
 export type HeroContent = {
   posters: HeroPoster[];
@@ -75,11 +80,22 @@ export type DonationHighlightsContent = {
   items: DonationHighlightItem[];
 };
 
+export type GalleryItem = {
+  src: string;
+  label: string;
+};
+
+export type GalleryContent = {
+  title: string;
+  items: GalleryItem[];
+};
+
 export type SevaItemContent = {
   title: string;
   description: string;
   image: string;
   icon: LucideIcon;
+  iconName?: EventIconName;
 };
 
 export type SevaContent = {
@@ -115,89 +131,45 @@ export type ContributorsContent = {
 
 export type DonationFormContent = {
   heading: string;
-  tabs: {
-    indian: string;
-    nonIndian: string;
-  };
-  selects: {
-    sevaLabel: string;
-    amountLabel: string;
-    donorIdentityLabel: string;
-  };
-  placeholders: {
-    amount: string;
-    fullName: string;
-    whatsappInternational: string;
-    whatsappIndian: string;
-    email: string;
-    dateOfBirth: string;
-    pincode: string;
-  };
-  sevaOptions: {
-    value: string;
-    label: string;
-  }[];
-  amountSuggestions: string[];
-  donorIdentityOptions: {
-    value: string;
-    label: string;
-  }[];
-  labels: {
-    fullName: string;
-    whatsapp: string;
-    email: string;
-    dateOfBirth: string;
-    pincode: string;
-    sankalp: string;
-    termsLead: string;
-    termsLabel: string;
-    privacyLabel: string;
-    supportTitle: string;
-    supportDescription: string;
-    upiTitle: string;
-    bankTitle: string;
-    screenshotNote: string;
-    paymentMethods: string;
-    currencyBadge: string;
-  };
-  nonIndian: {
-    complianceNote: string;
-    birthdayNote: string;
-    legalCopy: string[];
-    registrationNumberLabel: string;
-    registrationNumber: string;
+  notice: {
+    title: string;
+    text: string;
   };
   support: {
     phone: string;
     email: string;
   };
-  bankDetails: {
-    accountName: string;
-    accountNumber: string;
-    bankName: string;
-    ifsc: string;
-    email: string;
+  bank: {
+    tag: string;
+    title: string;
+    fields: {
+      beneficiaryName: string;
+      bankName: string;
+      accountNumber: string;
+      ifscCode: string;
+    };
+  };
+  upi: {
+    tag: string;
+    upiId: string;
+    buttonLabel: string;
+    qrTitle: string;
     qrImage: string;
+    description: string;
   };
-  submitLabels: {
-    donate: string;
-    donating: string;
-  };
-  messages: {
-    requiredFields: string;
-    success: string;
-    failure: string;
-  };
+  screenshotNote: string;
 };
 
 export type EventPageData = {
   slug: string;
+  theme: EventTheme;
   hero: HeroContent;
   overview: EventOverviewContent;
   importance: ImportanceContent;
   impact: ImpactContent;
   privileges: DonorPrivilegesContent;
   donationHighlights: DonationHighlightsContent;
+  gallery: GalleryContent;
   seva: SevaContent;
   contributors: ContributorsContent;
   donationForm: DonationFormContent;

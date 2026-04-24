@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS event_pages (
+  slug TEXT PRIMARY KEY,
+  content JSONB NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

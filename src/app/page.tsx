@@ -1,6 +1,14 @@
 import { EventTemplate } from "@/components/event-template";
-import { akshayaTritiyaEvent } from "@/data/events/akshaya-tritiya";
+import { getPublishedEventData } from "@/lib/events-cms";
 
-export default function HomePage() {
-  return <EventTemplate event={akshayaTritiyaEvent} />;
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const event = await getPublishedEventData("akshaya-tritiya");
+
+  if (!event) {
+    return null;
+  }
+
+  return <EventTemplate event={event} />;
 }
