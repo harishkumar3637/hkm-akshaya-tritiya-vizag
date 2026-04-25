@@ -26,15 +26,15 @@ export function EventTemplate({ event }: EventTemplateProps) {
       <div className="bg-sectionAltBackground">
         <EventOverviewSection content={event.overview} />
       </div>
+      <div className="bg-sectionBackground">
+        <DonationHighlights content={event.donationHighlights} />
+      </div>
       <ImportanceCarousel content={event.importance} />
       <div className="bg-sectionBackground">
         <ImpactSection content={event.impact} />
       </div>
       <div className="bg-sectionAltBackground">
         <DonorPrivileges content={event.privileges} />
-      </div>
-      <div className="bg-sectionBackground">
-        <DonationHighlights content={event.donationHighlights} />
       </div>
       <div className="bg-sectionAltBackground">
         <SevaGrid content={event.seva} />

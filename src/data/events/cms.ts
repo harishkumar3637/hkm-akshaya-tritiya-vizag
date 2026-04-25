@@ -1,46 +1,29 @@
-import type { EventPageData, SevaContent, SevaItemContent } from "@/data/events/types";
-import { getEventIcon, type EventIconName } from "@/lib/event-icons";
+import type { EventPageData } from "@/data/events/types";
+import type { CoreThemeColors } from "@/lib/themes";
 import { themes } from "@/lib/themes";
 
-export type CmsSevaItemContent = Omit<SevaItemContent, "icon"> & {
-  iconName: EventIconName;
-};
-
-export type CmsSevaContent = Omit<SevaContent, "items"> & {
-  items: CmsSevaItemContent[];
-};
-
-export type EventCmsContent = Omit<EventPageData, "theme" | "seva"> & {
+export type EventCmsContent = Omit<EventPageData, "theme"> & {
   themeName?: keyof typeof themes;
-  seva: CmsSevaContent;
+  themeColors?: CoreThemeColors;
 };
 
 export function toEventCmsContent(event: EventPageData): EventCmsContent {
   return {
     ...event,
     themeName: event.theme.name,
-    seva: {
-      ...event.seva,
-      items: event.seva.items.map(({ icon: _icon, iconName, ...item }) => ({
-        ...item,
-        iconName: iconName ?? "flower",
-      })),
-    },
+    themeColors: event.theme.colors,
   };
 }
 
 export function hydrateEventCmsContent(content: EventCmsContent): EventPageData {
   const themeName = content.themeName ?? "akshaya-tritiya";
+  const baseTheme = themes[themeName] ?? themes["akshaya-tritiya"];
 
   return {
     ...content,
-    theme: themes[themeName] ?? themes["akshaya-tritiya"],
-    seva: {
-      ...content.seva,
-      items: content.seva.items.map((item) => ({
-        ...item,
-        icon: getEventIcon(item.iconName),
-      })),
+    theme: {
+      ...baseTheme,
+      colors: content.themeColors ?? baseTheme.colors,
     },
   };
 }

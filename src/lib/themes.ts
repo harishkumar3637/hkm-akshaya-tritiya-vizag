@@ -8,6 +8,16 @@ export type CoreThemeColors = {
   text: string;
   accent: string;
 };
+export type CoreThemeColorKey = keyof CoreThemeColors;
+
+export const coreThemeColorKeys: CoreThemeColorKey[] = [
+  "primary",
+  "secondary",
+  "background",
+  "surface",
+  "text",
+  "accent",
+];
 
 export type AppTheme = {
   name: ThemeName;

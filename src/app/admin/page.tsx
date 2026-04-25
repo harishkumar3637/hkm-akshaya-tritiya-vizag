@@ -1,9 +1,17 @@
 import { EventCmsEditor } from "@/app/admin/event-editor";
+import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { getCmsEventContent } from "@/lib/events-cms";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
+  const isAuthenticated = await isAdminAuthenticated();
+
+  if (!isAuthenticated) {
+    redirect("/admin/login");
+  }
+
   const { content, source } = await getCmsEventContent("akshaya-tritiya");
 
   if (!content) {

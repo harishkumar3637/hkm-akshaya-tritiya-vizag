@@ -95,13 +95,6 @@ export function EventOverviewSection({ content }: EventOverviewSectionProps) {
               ))}
             </div>
 
-            <div className="mt-5 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <a href="#donation-form" className="inline-flex items-center gap-2 text-base font-semibold text-[var(--textHeading)] transition-colors hover:text-[var(--buttonPrimary)]">
-                {content.readMoreLabel}
-                <span>{"\u2192"}</span>
-              </a>
-            </div>
-
             <div className="mt-5">
               <a href="#donation-form">
                 <Button size="lg" className="rounded-full bg-gradient-to-r from-[var(--buttonPrimary)] to-[var(--buttonHover)] px-8 text-[var(--textOnAccent)] shadow-lg transition-all hover:brightness-105">

@@ -98,7 +98,7 @@ export function DonationForm({ content }: DonationFormProps) {
   return (
     <section
       id="donation-form"
-      className="bg-[linear-gradient(180deg,var(--sectionBackground)_0%,var(--sectionAltBackground)_42%,var(--cardRaisedBackground)_100%)] px-4 py-12"
+      className="bg-[linear-gradient(180deg,var(--sectionBackground)_0%,var(--sectionAltBackground)_42%,var(--cardRaisedBackground)_100%)] px-4 py-8"
     >
       <div className="mx-auto max-w-7xl">
         <h2 className="mx-auto max-w-7xl whitespace-nowrap text-center text-[clamp(1.45rem,3vw,2.25rem)] font-bold text-[var(--buttonPrimary)]">
@@ -118,9 +118,9 @@ export function DonationForm({ content }: DonationFormProps) {
           .
         </div>
 
-        <div className="mx-auto mt-8 grid max-w-6xl grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
-          <div className="rounded-3xl bg-[var(--cardBackground)] p-6 shadow-[0_16px_40px_color-mix(in_srgb,var(--shadowColor)_38%,transparent)] sm:p-8">
-            <div className="mb-6">
+        <div className="mx-auto mt-6 grid max-w-6xl grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
+          <div className="rounded-3xl bg-[var(--cardBackground)] p-5 shadow-[0_16px_40px_color-mix(in_srgb,var(--shadowColor)_38%,transparent)] sm:p-6">
+            <div className="mb-5">
               <p className="text-sm font-bold uppercase tracking-[0.18em] text-[var(--buttonSecondary)]">
                 {content.bank.tag}
               </p>
@@ -142,7 +142,7 @@ export function DonationForm({ content }: DonationFormProps) {
               ))}
             </div>
 
-            <div className="mt-8">
+            <div className="mt-6">
               <h4 className="text-xl font-bold text-[var(--buttonPrimary)]">{content.upi.buttonLabel}</h4>
               <button
                 type="button"
@@ -155,7 +155,7 @@ export function DonationForm({ content }: DonationFormProps) {
               </button>
             </div>
 
-            <div className="mt-8 rounded-2xl border border-[var(--borderSubtle)] bg-white px-5 py-4">
+            <div className="mt-6 rounded-2xl border border-[var(--borderSubtle)] bg-white px-5 py-4">
               <p className="text-sm font-semibold leading-6 text-[var(--textMuted)]">
                 {content.screenshotNote}
               </p>
@@ -172,7 +172,7 @@ export function DonationForm({ content }: DonationFormProps) {
             </div>
           </div>
 
-          <div className="rounded-3xl bg-[var(--cardBackground)] p-6 shadow-[0_16px_40px_color-mix(in_srgb,var(--shadowColor)_38%,transparent)] sm:p-8">
+          <div className="rounded-3xl bg-[var(--cardBackground)] p-5 shadow-[0_16px_40px_color-mix(in_srgb,var(--shadowColor)_38%,transparent)] sm:p-6">
             <div className="text-center">
               <p className="text-sm font-bold uppercase tracking-[0.18em] text-[var(--buttonSecondary)]">
                 {content.upi.tag}
@@ -182,7 +182,7 @@ export function DonationForm({ content }: DonationFormProps) {
               </h3>
             </div>
 
-            <div className="mt-8 flex justify-center">
+            <div className="mt-6 flex justify-center">
               <div className="w-full max-w-[280px] rounded-3xl bg-[var(--decorativeSoft)] p-5">
                 <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-white p-4">
                   <Image
@@ -196,7 +196,7 @@ export function DonationForm({ content }: DonationFormProps) {
               </div>
             </div>
 
-            <p className="mx-auto mt-6 max-w-sm text-center text-sm font-semibold leading-6 text-[var(--textMuted)]">
+            <p className="mx-auto mt-5 max-w-sm text-center text-sm font-semibold leading-6 text-[var(--textMuted)]">
               {content.upi.description}
             </p>
           </div>

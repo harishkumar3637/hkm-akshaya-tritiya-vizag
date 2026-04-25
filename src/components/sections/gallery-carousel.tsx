@@ -17,14 +17,14 @@ function getCardClass(index: number, activeIndex: number, total: number) {
   }
 
   if (offset === 1) {
-    return "z-20 translate-x-[24%] scale-[0.86] opacity-70 md:translate-x-[29%]";
+    return "z-20 translate-x-[34%] scale-[0.8] opacity-62 md:translate-x-[38%] lg:translate-x-[42%]";
   }
 
   if (offset === total - 1) {
-    return "z-20 -translate-x-[24%] scale-[0.86] opacity-70 md:-translate-x-[29%]";
+    return "z-20 -translate-x-[34%] scale-[0.8] opacity-62 md:-translate-x-[38%] lg:-translate-x-[42%]";
   }
 
-  return "z-10 scale-[0.72] opacity-0";
+  return "z-10 scale-[0.66] opacity-0";
 }
 
 export function GalleryCarousel({ content }: GalleryCarouselProps) {
@@ -48,13 +48,13 @@ export function GalleryCarousel({ content }: GalleryCarouselProps) {
         <h2 className="text-center font-serif text-4xl font-bold text-white sm:text-5xl">{content.title}</h2>
 
         <div className="mt-8">
-          <div className="relative mx-auto flex h-[180px] items-center justify-center sm:h-[240px] lg:h-[290px]">
+          <div className="relative mx-auto flex h-[220px] items-center justify-center sm:h-[280px] lg:h-[340px]">
             {content.items.map((item, index) => (
               <button
                 key={`${item.src}-${index}`}
                 type="button"
                 onClick={() => setActiveIndex(index)}
-                className={`absolute aspect-[16/10] w-[58%] overflow-hidden rounded-[24px] border border-white/18 shadow-[0_28px_70px_rgba(31,6,11,0.32)] transition-all duration-700 ease-out sm:w-[50%] lg:w-[46%] ${getCardClass(
+                className={`absolute aspect-[16/10] w-[54%] overflow-hidden rounded-[24px] border border-white/18 shadow-[0_28px_70px_rgba(31,6,11,0.32)] transition-all duration-700 ease-out sm:w-[46%] lg:w-[40%] ${getCardClass(
                   index,
                   activeIndex,
                   content.items.length,
@@ -70,7 +70,7 @@ export function GalleryCarousel({ content }: GalleryCarouselProps) {
                   priority={index === 0}
                 />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(14,10,11,0.22)_70%,rgba(14,10,11,0.66)_100%)]" />
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-[4px] border border-[#c6a23f] bg-[rgba(35,31,32,0.9)] px-4 py-1 text-base font-semibold italic text-white shadow-[0_12px_24px_rgba(14,10,11,0.35)] sm:text-lg">
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-[6px] border border-[#c6a23f] bg-[rgba(35,31,32,0.88)] px-4 py-1.5 text-sm font-semibold italic text-white shadow-[0_12px_24px_rgba(14,10,11,0.35)] sm:text-base">
                   {item.label}
                 </div>
               </button>

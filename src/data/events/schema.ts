@@ -1,11 +1,19 @@
 import { z } from "zod";
 
-import { eventIconNames } from "@/lib/event-icons";
-import { themes } from "@/lib/themes";
+import { themes, type CoreThemeColors } from "@/lib/themes";
 
 const imageText = z.string().min(1);
 const nonEmptyText = z.string().min(1);
 const textList = z.array(z.string());
+const colorValue = z.string().regex(/^#([0-9a-fA-F]{6})$/);
+const themeColorSchema = z.object({
+  primary: colorValue,
+  secondary: colorValue,
+  background: colorValue,
+  surface: colorValue,
+  text: colorValue,
+  accent: colorValue,
+}) satisfies z.ZodType<CoreThemeColors>;
 
 function normalizeDonationForm(value: unknown) {
   if (!value || typeof value !== "object") {
@@ -70,6 +78,7 @@ function normalizeDonationForm(value: unknown) {
 export const eventCmsContentSchema = z.object({
   slug: nonEmptyText,
   themeName: z.enum(Object.keys(themes) as [keyof typeof themes, ...(keyof typeof themes)[]]).optional(),
+  themeColors: themeColorSchema.optional(),
   hero: z.object({
     posters: z.array(
       z.object({
@@ -94,7 +103,6 @@ export const eventCmsContentSchema = z.object({
     heading: nonEmptyText,
     highlightedHeading: nonEmptyText,
     points: textList,
-    readMoreLabel: nonEmptyText,
     donateLabel: nonEmptyText,
   }),
   importance: z.object({
@@ -153,13 +161,11 @@ export const eventCmsContentSchema = z.object({
   seva: z.object({
     eyebrow: nonEmptyText,
     title: nonEmptyText,
-    description: nonEmptyText,
     items: z.array(
       z.object({
         title: nonEmptyText,
         description: nonEmptyText,
         image: imageText,
-        iconName: z.enum(eventIconNames),
       }),
     ),
   }),

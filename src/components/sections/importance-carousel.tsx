@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 import { fadeInUp } from '@/lib/animations';
 import type { ImportanceContent } from '@/data/events/types';
@@ -27,7 +27,7 @@ function ImportanceCard({ title, description, image, index, isActive, isExpanded
         isActive ? 'ring-1 ring-[color-mix(in_srgb,var(--decorativeAccent)_70%,transparent)]' : ''
       }`}
     >
-      <div className="relative h-[360px] overflow-hidden rounded-[18px] sm:h-[390px] lg:h-[405px]">
+      <div className="relative h-[380px] overflow-hidden rounded-[18px] sm:h-[420px] lg:h-[460px]">
         <Image
           src={image}
           alt={title}
@@ -97,12 +97,14 @@ export function ImportanceCarousel({ content }: ImportanceCarouselProps) {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const shouldReduceMotion = useReducedMotion();
 
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
   const currentLoopedIndexRef = useRef(cloneCount);
   const isJumpingRef = useRef(false);
   const scrollEndTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoplayTimerRef = useRef<number | null>(null);
 
   const getRealIndex = useCallback(
     (index: number) => {
@@ -113,20 +115,31 @@ export function ImportanceCarousel({ content }: ImportanceCarouselProps) {
     [cloneCount, itemCount]
   );
 
-  const scrollToLoopedIndex = useCallback((index: number, behavior: ScrollBehavior = 'smooth') => {
+  const getScrollLeftForSlide = useCallback((index: number) => {
     const viewport = viewportRef.current;
     const slide = slideRefs.current[index];
 
-    if (!viewport || !slide) return;
+    if (!viewport || !slide) return null;
+
+    const targetLeft = slide.offsetLeft - (viewport.clientWidth - slide.offsetWidth) / 2;
+
+    return Math.max(0, targetLeft);
+  }, []);
+
+  const scrollToLoopedIndex = useCallback((index: number, behavior: ScrollBehavior = 'smooth') => {
+    const viewport = viewportRef.current;
+    const targetLeft = getScrollLeftForSlide(index);
+
+    if (!viewport || targetLeft === null) return;
 
     viewport.scrollTo({
-      left: slide.offsetLeft,
-      behavior,
+      left: targetLeft,
+      behavior: shouldReduceMotion ? 'auto' : behavior,
     });
 
     currentLoopedIndexRef.current = index;
     setActiveIndex(getRealIndex(index));
-  }, [getRealIndex]);
+  }, [getRealIndex, getScrollLeftForSlide, shouldReduceMotion]);
 
   const normalizeScrollPosition = useCallback((loopedIndex: number) => {
     if (itemCount === 0) return;
@@ -134,18 +147,18 @@ export function ImportanceCarousel({ content }: ImportanceCarouselProps) {
 
     const normalizedIndex = cloneCount + getRealIndex(loopedIndex);
     const viewport = viewportRef.current;
-    const slide = slideRefs.current[normalizedIndex];
+    const targetLeft = getScrollLeftForSlide(normalizedIndex);
 
-    if (!viewport || !slide) return;
+    if (!viewport || targetLeft === null) return;
 
     isJumpingRef.current = true;
-    viewport.scrollTo({ left: slide.offsetLeft, behavior: 'auto' });
+    viewport.scrollTo({ left: targetLeft, behavior: 'auto' });
     currentLoopedIndexRef.current = normalizedIndex;
 
     window.requestAnimationFrame(() => {
       isJumpingRef.current = false;
     });
-  }, [cloneCount, getRealIndex, itemCount]);
+  }, [cloneCount, getRealIndex, getScrollLeftForSlide, itemCount]);
 
   const handleScroll = useCallback(() => {
     if (isJumpingRef.current) return;
@@ -154,13 +167,16 @@ export function ImportanceCarousel({ content }: ImportanceCarouselProps) {
 
     if (!viewport) return;
 
+    const viewportCenter = viewport.scrollLeft + viewport.clientWidth / 2;
+
     let nearestIndex = currentLoopedIndexRef.current;
     let nearestDistance = Number.POSITIVE_INFINITY;
 
     slideRefs.current.forEach((slide, index) => {
       if (!slide) return;
 
-      const distance = Math.abs(slide.offsetLeft - viewport.scrollLeft);
+      const slideCenter = slide.offsetLeft + slide.offsetWidth / 2;
+      const distance = Math.abs(slideCenter - viewportCenter);
 
       if (distance < nearestDistance) {
         nearestDistance = distance;
@@ -200,13 +216,13 @@ export function ImportanceCarousel({ content }: ImportanceCarouselProps) {
     if (itemCount === 0) return;
 
     const viewport = viewportRef.current;
-    const slide = slideRefs.current[cloneCount];
+    const targetLeft = getScrollLeftForSlide(cloneCount);
 
-    if (!viewport || !slide) return;
+    if (!viewport || targetLeft === null) return;
 
-    viewport.scrollTo({ left: slide.offsetLeft, behavior: 'auto' });
+    viewport.scrollTo({ left: targetLeft, behavior: 'auto' });
     currentLoopedIndexRef.current = cloneCount;
-  }, [cloneCount, itemCount]);
+  }, [cloneCount, getScrollLeftForSlide, itemCount]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -219,8 +235,26 @@ export function ImportanceCarousel({ content }: ImportanceCarouselProps) {
   }, [activeIndex, cloneCount, scrollToLoopedIndex]);
 
   useEffect(() => {
+    if (itemCount <= 1 || shouldReduceMotion) {
+      return;
+    }
+
+    autoplayTimerRef.current = window.setInterval(() => {
+      scrollToLoopedIndex(currentLoopedIndexRef.current + 1);
+    }, 3200);
+
+    return () => {
+      if (autoplayTimerRef.current) {
+        window.clearInterval(autoplayTimerRef.current);
+        autoplayTimerRef.current = null;
+      }
+    };
+  }, [itemCount, scrollToLoopedIndex, shouldReduceMotion]);
+
+  useEffect(() => {
     return () => {
       if (scrollEndTimerRef.current) clearTimeout(scrollEndTimerRef.current);
+      if (autoplayTimerRef.current) window.clearInterval(autoplayTimerRef.current);
     };
   }, []);
 
@@ -251,7 +285,7 @@ export function ImportanceCarousel({ content }: ImportanceCarouselProps) {
       <div className="absolute -left-12 top-20 h-40 w-40 rounded-full bg-[color-mix(in_srgb,var(--decorativeAccent)_30%,transparent)] blur-3xl" />
       <div className="absolute -right-12 bottom-12 h-44 w-44 rounded-full bg-[color-mix(in_srgb,var(--decorativeSoft)_36%,transparent)] blur-3xl" />
 
-      <motion.div {...fadeInUp} className="relative mx-auto max-w-7xl">
+      <motion.div {...fadeInUp} className="relative mx-auto max-w-[1560px]">
         <div className="mx-auto max-w-3xl text-center">
           <span className="inline-flex rounded-full border border-[color-mix(in_srgb,var(--borderSubtle)_35%,transparent)] bg-white/65 px-4 py-1 text-xs font-semibold uppercase tracking-[0.32em] text-[var(--textMuted)] backdrop-blur">
             {content.eyebrow}
@@ -293,7 +327,7 @@ export function ImportanceCarousel({ content }: ImportanceCarouselProps) {
 
           <div
             ref={viewportRef}
-            className="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-1 pb-4 scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] sm:gap-5 lg:gap-6 [&::-webkit-scrollbar]:hidden"
+            className="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-[8vw] pb-4 [scrollbar-width:none] [-ms-overflow-style:none] sm:px-[10vw] sm:gap-5 lg:px-8 lg:gap-6 xl:px-10 [&::-webkit-scrollbar]:hidden"
             aria-label="Akshaya Tritiya importance cards"
             onScroll={handleScroll}
           >
@@ -306,7 +340,7 @@ export function ImportanceCarousel({ content }: ImportanceCarouselProps) {
                   ref={(node) => {
                     slideRefs.current[index] = node;
                   }}
-                  className="w-[84vw] flex-none snap-start sm:w-[46%] lg:w-[31%] xl:w-[23.35%]"
+                  className="w-[84vw] flex-none snap-center snap-always sm:w-[46%] lg:w-[24%]"
                 >
                   <ImportanceCard
                     index={realIndex}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { ZodError } from "zod";
 
+import { isAdminRequestAuthorized } from "@/lib/admin-auth";
 import { getCmsEventContent, saveCmsEventContent } from "@/lib/events-cms";
 
 type RouteContext = {
@@ -9,16 +10,6 @@ type RouteContext = {
     slug: string;
   }>;
 };
-
-function isAuthorized(request: NextRequest) {
-  const token = process.env.ADMIN_API_TOKEN;
-
-  if (!token) {
-    return true;
-  }
-
-  return request.headers.get("authorization") === `Bearer ${token}`;
-}
 
 export async function GET(_request: NextRequest, { params }: RouteContext) {
   const { slug } = await params;
@@ -32,7 +23,7 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
 }
 
 export async function PUT(request: NextRequest, { params }: RouteContext) {
-  if (!isAuthorized(request)) {
+  if (!isAdminRequestAuthorized(request)) {
     return NextResponse.json({ message: "Unauthorized." }, { status: 401 });
   }
 

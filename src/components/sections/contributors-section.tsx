@@ -1,53 +1,56 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Search, X } from 'lucide-react';
 
 import { fadeInUp } from '@/lib/animations';
 import type { Contributor, ContributorsContent } from '@/data/events/types';
 
-function splitIntoRows(items: Contributor[], rowCount: number) {
-  return Array.from({ length: rowCount }, (_, rowIndex) =>
-    items.filter((_, itemIndex) => itemIndex % rowCount === rowIndex)
+function splitIntoColumns(items: Contributor[], columnCount: number) {
+  return Array.from({ length: columnCount }, (_, columnIndex) =>
+    items.filter((_, itemIndex) => itemIndex % columnCount === columnIndex)
   );
 }
 
-function ContributorRow({
+function ContributorColumn({
   contributors,
   reverse = false,
-  duration = 22,
+  duration = 24,
+  reduceMotion = false,
 }: {
   contributors: Contributor[];
   reverse?: boolean;
   duration?: number;
+  reduceMotion?: boolean;
 }) {
   const marqueeItems = [...contributors, ...contributors];
 
   return (
-    <div className="relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-[#f8e9e6] to-transparent sm:w-20" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-[#f8e9e6] to-transparent sm:w-20" />
+    <div className="relative h-[420px] overflow-hidden rounded-[30px] border border-[color-mix(in_srgb,var(--buttonPrimary)_18%,white)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--cardRaisedBackground)_72%,white),color-mix(in_srgb,var(--decorativeSoft)_56%,transparent))] shadow-[0_22px_50px_color-mix(in_srgb,var(--shadowColor)_22%,transparent)] backdrop-blur-xl">
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-16 bg-gradient-to-b from-[color-mix(in_srgb,var(--decorativeSoft)_94%,white)] via-[color-mix(in_srgb,var(--decorativeSoft)_72%,transparent)] to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16 bg-gradient-to-t from-[color-mix(in_srgb,var(--decorativeSoft)_94%,white)] via-[color-mix(in_srgb,var(--decorativeSoft)_72%,transparent)] to-transparent" />
+      <div className="pointer-events-none absolute inset-[1px] rounded-[29px] border border-white/20" />
 
       <motion.div
-        animate={{ x: reverse ? ['-50%', '0%'] : ['0%', '-50%'] }}
-        transition={{ duration, repeat: Infinity, ease: 'linear' }}
-        className="flex w-max gap-4 py-2"
+        animate={reduceMotion ? undefined : { y: reverse ? ['-50%', '0%'] : ['0%', '-50%'] }}
+        transition={reduceMotion ? undefined : { duration, repeat: Infinity, ease: 'linear' }}
+        className="flex flex-col gap-4 px-4 py-4"
       >
         {marqueeItems.map((contributor, index) => (
           <article
             key={`${contributor.name}-${index}`}
-            className="flex min-w-[290px] items-center gap-4 rounded-2xl bg-[#f3d381] px-4 py-3 shadow-[0_10px_24px_rgba(143,65,30,0.08)] sm:min-w-[380px]"
+            className="flex min-h-[112px] items-center gap-4 rounded-[24px] border border-[color-mix(in_srgb,var(--buttonPrimary)_18%,white)] bg-[linear-gradient(135deg,color-mix(in_srgb,var(--cardRaisedBackground)_82%,white),color-mix(in_srgb,var(--decorativeSoft)_42%,transparent))] px-4 py-4 shadow-[0_14px_34px_color-mix(in_srgb,var(--shadowColor)_16%,transparent)] backdrop-blur-md"
           >
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#f9eceb] text-2xl font-bold text-[#2f2627]">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--buttonPrimary)_16%,white)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--cardRaisedBackground)_88%,white),color-mix(in_srgb,var(--decorativeSoft)_34%,transparent))] text-2xl font-bold text-[var(--textHeading)] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
               {contributor.avatar}
             </div>
             <div className="min-w-0">
-              <h3 className="truncate text-xl font-bold text-[#a1515d]">{contributor.name}</h3>
-              <p className="text-lg font-bold text-[#221c1d]">
+              <h3 className="truncate text-xl font-bold text-[var(--buttonPrimary)]">{contributor.name}</h3>
+              <p className="text-lg font-bold text-[var(--textHeading)]">
                 Donated Rs. {contributor.amount.toLocaleString('en-IN')}
               </p>
-              <p className="text-base text-[#433939]">{contributor.time}</p>
+              <p className="text-sm text-[var(--textMuted)]">{contributor.time}</p>
             </div>
           </article>
         ))}
@@ -64,6 +67,7 @@ export function ContributorsSection({ content }: ContributorsSectionProps) {
   const [activeTab, setActiveTab] = useState<'recent' | 'generous'>('recent');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const shouldReduceMotion = useReducedMotion();
 
   const openModal = () => {
     setSearchQuery('');
@@ -76,7 +80,7 @@ export function ContributorsSection({ content }: ContributorsSectionProps) {
   };
 
   const activeContributors = activeTab === 'recent' ? content.recent : content.generous;
-  const rows = useMemo(() => splitIntoRows(activeContributors, 3), [activeContributors]);
+  const columns = useMemo(() => splitIntoColumns(activeContributors, 3), [activeContributors]);
   const filteredContributors = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
 
@@ -112,22 +116,24 @@ export function ContributorsSection({ content }: ContributorsSectionProps) {
 
   return (
     <>
-      <section className="bg-[#f8e9e6] py-14 sm:py-16">
-        <div className="mx-auto max-w-[1400px]">
+      <section className="bg-gradient-to-b from-[var(--decorativeSoft)] via-[color-mix(in_srgb,var(--decorativeAccent)_78%,white)] to-[var(--decorativeSoft)] py-14 sm:py-16">
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
           <motion.h2
             {...fadeInUp}
-            className="px-4 text-center font-sans text-4xl font-black tracking-tight text-[#1d1a1b] sm:text-5xl md:text-6xl"
+            className="text-center font-sans text-3xl font-black tracking-tight text-[var(--textHeading)] sm:text-4xl md:text-5xl"
           >
             {content.heading}
           </motion.h2>
 
-          <div className="mt-8 flex justify-center px-4">
-            <div className="inline-flex rounded-[20px] bg-[#f3d381] p-1.5 shadow-[0_10px_24px_rgba(143,65,30,0.08)]">
+          <div className="mt-8 flex justify-center">
+            <div className="inline-flex rounded-[24px] border border-[color-mix(in_srgb,var(--buttonPrimary)_24%,white)] bg-[linear-gradient(135deg,color-mix(in_srgb,var(--cardRaisedBackground)_80%,white),color-mix(in_srgb,var(--decorativeSoft)_48%,transparent))] p-1.5 shadow-[0_18px_40px_color-mix(in_srgb,var(--shadowColor)_18%,transparent)] backdrop-blur-xl">
               <button
                 type="button"
                 onClick={() => setActiveTab('recent')}
-                className={`rounded-[16px] px-8 py-4 text-xl font-bold transition-all sm:min-w-[145px] ${
-                  activeTab === 'recent' ? 'bg-[#820000] text-white' : 'text-[#221c1d]'
+                className={`rounded-[18px] px-8 py-4 text-xl font-bold transition-all sm:min-w-[145px] ${
+                  activeTab === 'recent'
+                    ? 'bg-gradient-to-r from-[var(--buttonPrimary)] to-[var(--buttonHover)] text-[var(--textOnAccent)] shadow-[0_12px_24px_color-mix(in_srgb,var(--shadowColor)_28%,transparent)]'
+                    : 'text-[var(--textHeading)]'
                 }`}
               >
                 {content.tabs.recent}
@@ -135,8 +141,10 @@ export function ContributorsSection({ content }: ContributorsSectionProps) {
               <button
                 type="button"
                 onClick={() => setActiveTab('generous')}
-                className={`rounded-[16px] px-8 py-4 text-xl font-bold transition-all sm:min-w-[220px] ${
-                  activeTab === 'generous' ? 'bg-[#820000] text-white' : 'text-[#221c1d]'
+                className={`rounded-[18px] px-8 py-4 text-xl font-bold transition-all sm:min-w-[220px] ${
+                  activeTab === 'generous'
+                    ? 'bg-gradient-to-r from-[var(--buttonPrimary)] to-[var(--buttonHover)] text-[var(--textOnAccent)] shadow-[0_12px_24px_color-mix(in_srgb,var(--shadowColor)_28%,transparent)]'
+                    : 'text-[var(--textHeading)]'
                 }`}
               >
                 {content.tabs.generous}
@@ -144,17 +152,17 @@ export function ContributorsSection({ content }: ContributorsSectionProps) {
             </div>
           </div>
 
-          <div className="mt-12 space-y-3">
-            <ContributorRow contributors={rows[0] ?? []} duration={24} />
-            <ContributorRow contributors={rows[1] ?? []} reverse duration={26} />
-            <ContributorRow contributors={rows[2] ?? []} duration={28} />
+          <div className="mt-12 grid gap-4 lg:grid-cols-3">
+            <ContributorColumn contributors={columns[0] ?? []} duration={24} reduceMotion={Boolean(shouldReduceMotion)} />
+            <ContributorColumn contributors={columns[1] ?? []} reverse duration={26} reduceMotion={Boolean(shouldReduceMotion)} />
+            <ContributorColumn contributors={columns[2] ?? []} duration={28} reduceMotion={Boolean(shouldReduceMotion)} />
           </div>
 
           <div className="mt-12 flex justify-center px-4">
             <button
               type="button"
               onClick={openModal}
-              className="rounded-[18px] border-2 border-[#8b1d12] bg-transparent px-8 py-4 text-2xl font-medium text-[#1d1a1b] transition-colors hover:bg-[#8b1d12] hover:text-white"
+              className="rounded-[18px] border-2 border-[var(--buttonPrimary)] bg-transparent px-8 py-4 text-2xl font-medium text-[var(--textHeading)] transition-colors hover:bg-[var(--buttonPrimary)] hover:text-[var(--textOnAccent)]"
             >
               View More
             </button>
@@ -163,18 +171,18 @@ export function ContributorsSection({ content }: ContributorsSectionProps) {
       </section>
 
       {isModalOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-4 py-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[color-mix(in_srgb,var(--textHeading)_42%,black)] px-4 py-6">
           <div
             className="absolute inset-0"
             onClick={closeModal}
             aria-hidden="true"
           />
 
-          <div className="relative z-10 flex max-h-[92vh] w-full max-w-[640px] flex-col overflow-hidden rounded-[22px] bg-[#f8e3e3] shadow-[0_24px_80px_rgba(28,12,12,0.35)]">
+          <div className="relative z-10 flex max-h-[92vh] w-full max-w-[640px] flex-col overflow-hidden rounded-[22px] border border-[color-mix(in_srgb,var(--buttonPrimary)_18%,white)] bg-[linear-gradient(180deg,var(--cardRaisedBackground),color-mix(in_srgb,var(--decorativeSoft)_48%,white))] shadow-[0_24px_80px_color-mix(in_srgb,var(--shadowColor)_30%,transparent)]">
             <div className="flex items-start justify-between gap-4 px-6 pt-6 sm:px-7 sm:pt-7">
               <div>
-                <h3 className="text-2xl font-black text-[#231f20] sm:text-[2rem]">{content.modal.title}</h3>
-                <p className="mt-1 text-sm text-[#6b5350]">
+                <h3 className="text-2xl font-black text-[var(--textHeading)] sm:text-[2rem]">{content.modal.title}</h3>
+                <p className="mt-1 text-sm text-[var(--textMuted)]">
                   {activeTab === 'recent' ? content.modal.recentSubtitle : content.modal.generousSubtitle}
                 </p>
               </div>
@@ -182,7 +190,7 @@ export function ContributorsSection({ content }: ContributorsSectionProps) {
               <button
                 type="button"
                 onClick={closeModal}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border-2 border-[#8d7e7b] bg-[#f9eded] text-[#6a5b59] transition-colors hover:bg-[#f3d9d8] hover:text-[#372f30]"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border-2 border-[color-mix(in_srgb,var(--buttonPrimary)_22%,white)] bg-[color-mix(in_srgb,var(--cardRaisedBackground)_75%,white)] text-[var(--textMuted)] transition-colors hover:bg-[var(--decorativeSoft)] hover:text-[var(--textHeading)]"
                 aria-label="Close donor list"
               >
                 <X className="h-5 w-5" />
@@ -191,13 +199,13 @@ export function ContributorsSection({ content }: ContributorsSectionProps) {
 
             <div className="px-6 pt-5 sm:px-7">
               <label className="relative block">
-                <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8a6763]" />
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[var(--textMuted)]" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
                   placeholder={content.modal.searchPlaceholder}
-                  className="w-full rounded-2xl border border-[#d8b5af] bg-[#fff7f5] py-3 pl-11 pr-4 text-base text-[#2a2021] outline-none transition focus:border-[#a1515d] focus:ring-2 focus:ring-[#a1515d]/15"
+                  className="w-full rounded-2xl border border-[color-mix(in_srgb,var(--buttonPrimary)_18%,white)] bg-[color-mix(in_srgb,var(--cardRaisedBackground)_82%,white)] py-3 pl-11 pr-4 text-base text-[var(--textHeading)] outline-none transition focus:border-[var(--buttonPrimary)] focus:ring-2 focus:ring-[color-mix(in_srgb,var(--buttonPrimary)_15%,transparent)]"
                 />
               </label>
             </div>
@@ -208,27 +216,27 @@ export function ContributorsSection({ content }: ContributorsSectionProps) {
                   filteredContributors.map((contributor) => (
                     <article
                       key={`${activeTab}-${contributor.name}-${contributor.amount}`}
-                      className="flex items-center gap-3 rounded-[16px] bg-[#f3d381] px-3 py-3 shadow-[0_10px_24px_rgba(143,65,30,0.08)] sm:px-4"
+                      className="flex items-center gap-3 rounded-[16px] border border-[color-mix(in_srgb,var(--buttonPrimary)_16%,white)] bg-[linear-gradient(135deg,color-mix(in_srgb,var(--cardRaisedBackground)_84%,white),color-mix(in_srgb,var(--decorativeSoft)_44%,transparent))] px-3 py-3 shadow-[0_10px_24px_color-mix(in_srgb,var(--shadowColor)_14%,transparent)] sm:px-4"
                     >
-                      <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-full bg-[#f9eceb] text-xl font-bold text-[#2f2627] sm:h-14 sm:w-14">
+                      <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--buttonPrimary)_16%,white)] bg-[color-mix(in_srgb,var(--cardRaisedBackground)_80%,white)] text-xl font-bold text-[var(--textHeading)] sm:h-14 sm:w-14">
                         {contributor.avatar}
                       </div>
 
                       <div className="min-w-0">
-                        <h4 className="truncate text-lg font-bold leading-tight text-[#a1515d] sm:text-[1.65rem]">
+                        <h4 className="truncate text-lg font-bold leading-tight text-[var(--buttonPrimary)] sm:text-[1.65rem]">
                           {contributor.name}
                         </h4>
-                        <p className="mt-0.5 text-base font-bold text-[#221c1d] sm:text-[1.35rem]">
+                        <p className="mt-0.5 text-base font-bold text-[var(--textHeading)] sm:text-[1.35rem]">
                           Donated Rs {contributor.amount.toLocaleString('en-IN')}
                         </p>
-                        <p className="mt-0.5 text-sm text-[#433939] sm:text-[1.05rem]">
+                        <p className="mt-0.5 text-sm text-[var(--textMuted)] sm:text-[1.05rem]">
                           {contributor.time}
                         </p>
                       </div>
                     </article>
                   ))
                 ) : (
-                  <div className="rounded-[16px] bg-[#fff7f5] px-5 py-8 text-center text-[#6b5350]">
+                  <div className="rounded-[16px] bg-[color-mix(in_srgb,var(--cardRaisedBackground)_85%,white)] px-5 py-8 text-center text-[var(--textMuted)]">
                     {content.modal.emptyStatePrefix} &quot;{searchQuery}&quot;.
                   </div>
                 )}

@@ -2,11 +2,13 @@
 
 import Image from "next/image";
 import { useMemo, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { LogOut, Plus, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { EventCmsContent } from "@/data/events/cms";
 import { eventCmsContentSchema } from "@/data/events/schema";
-import { themeOptions } from "@/lib/themes";
+import { coreThemeColorKeys, themes, type CoreThemeColorKey } from "@/lib/themes";
 
 type EventCmsEditorProps = {
   initialEvent: EventCmsContent;
@@ -30,7 +32,8 @@ type PanelKey =
   | "impact"
   | "donor-privileges"
   | "seva-grid"
-  | "gallery";
+  | "gallery"
+  | "donation-form";
 
 type DonationRow = {
   id: string;
@@ -49,15 +52,25 @@ type ChartPoint = {
 const menuItems: { id: PanelKey; label: string }[] = [
   { id: "dashboard", label: "Dashboard" },
   { id: "theme", label: "Theme" },
-  { id: "hero-posters", label: "hero-posters" },
+  { id: "hero-posters", label: "Hero Posters" },
   { id: "donation-highlights", label: "Donation Highlights" },
-  { id: "overview", label: "overview" },
+  { id: "overview", label: "Overview" },
   { id: "importance", label: "Importance" },
   { id: "impact", label: "Impact" },
-  { id: "donor-privileges", label: "Donar Privileges" },
+  { id: "donor-privileges", label: "Donor Privileges" },
   { id: "seva-grid", label: "Seva Grid" },
   { id: "gallery", label: "Gallery" },
+  { id: "donation-form", label: "Donation Form" },
 ];
+
+const themeColorLabels: Record<CoreThemeColorKey, string> = {
+  primary: "Primary",
+  secondary: "Secondary",
+  background: "Background",
+  surface: "Surface",
+  text: "Text",
+  accent: "Accent",
+};
 
 const currencyFormatter = new Intl.NumberFormat("en-IN", {
   style: "currency",
@@ -123,16 +136,19 @@ function TextInput({
   label,
   value,
   onChange,
+  type = "text",
 }: {
   label: string;
   value: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  type?: string;
 }) {
   return (
     <label className="grid gap-2 text-sm">
-      <span>{label}</span>
+      <span className="font-medium text-[#4b5563]">{label}</span>
       <input
-        className="rounded-[12px] border border-[#d4c2af] bg-white px-3 py-2 outline-none focus:border-[#b4763c]"
+        type={type}
+        className="h-11 rounded-[12px] border border-[#cbd5e1] bg-white px-3 py-2 text-[#111827] shadow-[inset_0_1px_2px_rgba(15,23,42,0.04)] outline-none transition focus:border-[#b4763c] focus:ring-2 focus:ring-[#f3d5b5]"
         value={value}
         onChange={onChange}
       />
@@ -153,13 +169,62 @@ function TextAreaInput({
 }) {
   return (
     <label className="grid gap-2 text-sm">
-      <span>{label}</span>
+      <span className="font-medium text-[#4b5563]">{label}</span>
       <textarea
-        className="rounded-[12px] border border-[#d4c2af] bg-white px-3 py-2 outline-none focus:border-[#b4763c]"
+        className="rounded-[12px] border border-[#cbd5e1] bg-white px-3 py-2 text-[#111827] shadow-[inset_0_1px_2px_rgba(15,23,42,0.04)] outline-none transition focus:border-[#b4763c] focus:ring-2 focus:ring-[#f3d5b5]"
         rows={rows}
         value={value}
         onChange={onChange}
       />
+    </label>
+  );
+}
+
+function SelectInput({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+  options: readonly string[];
+}) {
+  return (
+    <label className="grid gap-2 text-sm">
+      <span className="font-medium text-[#4b5563]">{label}</span>
+      <select
+        className="h-11 rounded-[12px] border border-[#cbd5e1] bg-white px-3 py-2 text-[#111827] shadow-[inset_0_1px_2px_rgba(15,23,42,0.04)] outline-none transition focus:border-[#b4763c] focus:ring-2 focus:ring-[#f3d5b5]"
+        value={value}
+        onChange={onChange}
+      >
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function ColorInput({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+}) {
+  return (
+    <label className="grid gap-2 text-sm">
+      <span className="font-medium text-[#4b5563]">{label}</span>
+      <div className="flex h-11 items-center gap-3 rounded-[12px] border border-[#cbd5e1] bg-white px-3 shadow-[inset_0_1px_2px_rgba(15,23,42,0.04)] transition focus-within:border-[#b4763c] focus-within:ring-2 focus-within:ring-[#f3d5b5]">
+        <input type="color" className="h-7 w-10 cursor-pointer rounded border-0 bg-transparent p-0" value={value} onChange={onChange} />
+        <input className="min-w-0 flex-1 border-0 bg-transparent px-0 py-0 text-[#111827] outline-none" value={value} onChange={onChange} />
+      </div>
     </label>
   );
 }
@@ -232,19 +297,53 @@ function TimeSeriesChart({ points }: { points: ChartPoint[] }) {
 function FormSection({
   children,
   title,
+  footer,
 }: {
   children: ReactNode;
   title?: string;
+  footer?: ReactNode;
 }) {
   return (
-    <div className="rounded-[14px] border border-[#e5e7eb] bg-white p-4">
+    <div className="rounded-[16px] border border-[#dbe3ee] bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       {title ? <div className="mb-4 text-sm font-medium">{title}</div> : null}
       <div className="grid gap-4">{children}</div>
+      {footer ? <div className="mt-4 flex justify-end gap-2 border-t border-[#eef2f7] pt-4">{footer}</div> : null}
     </div>
   );
 }
 
+function ItemActionButton({
+  icon,
+  label,
+  onClick,
+  variant = "default",
+  disabled = false,
+}: {
+  icon: ReactNode;
+  label: string;
+  onClick: () => void;
+  variant?: "default" | "danger";
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`inline-flex h-10 items-center gap-2 rounded-[10px] border px-3 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ${
+        variant === "danger"
+          ? "border-[#fecaca] bg-[#fff1f2] text-[#b91c1c] hover:bg-[#ffe4e6]"
+          : "border-[#d8c3aa] bg-[#fff7ed] text-[#8b5c33] hover:bg-[#ffedd5]"
+      }`}
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
+
 export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: EventCmsEditorProps) {
+  const router = useRouter();
   const [event, setEvent] = useState<EventCmsContent>(initialEvent);
   const [saveState, setSaveState] = useState<SaveState>({ tone: "idle", message: "" });
   const [isSaving, setIsSaving] = useState(false);
@@ -309,9 +408,16 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
       setEvent(payload.event);
       setSaveState({ tone: "success", message: "Saved" });
     } catch (error) {
+      const message =
+        error instanceof Error && /network error|failed to fetch|load failed/i.test(error.message)
+          ? "Unable to reach the admin save API. Check that the Next.js server and database connection are available."
+          : error instanceof Error
+            ? error.message
+            : "Unable to save";
+
       setSaveState({
         tone: "error",
-        message: error instanceof Error ? error.message : "Unable to save",
+        message,
       });
     } finally {
       setIsSaving(false);
@@ -321,6 +427,12 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
   function handleReset() {
     setEvent(initialEvent);
     setSaveState({ tone: "idle", message: "" });
+  }
+
+  async function handleLogout() {
+    await fetch("/api/admin/logout", { method: "POST" }).catch(() => null);
+    router.push("/admin/login");
+    router.refresh();
   }
 
   function renderDashboard() {
@@ -375,27 +487,49 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
   }
 
   function renderThemeForm() {
+    const baseTheme = themes[event.themeName ?? "akshaya-tritiya"] ?? themes["akshaya-tritiya"];
+    const palette = event.themeColors ?? baseTheme.colors;
+
     return (
-      <FormSection>
-        <label className="grid gap-2 text-sm">
-          <span>Theme</span>
-          <select
-            className="rounded-[12px] border border-[#d4c2af] bg-white px-3 py-2 outline-none focus:border-[#b4763c]"
-            value={event.themeName ?? ""}
-            onChange={(changeEvent) =>
-              updateEvent((current) => ({
+      <FormSection title="Theme Palette">
+        <SelectInput
+          label="Base theme"
+          value={event.themeName ?? "akshaya-tritiya"}
+          options={Object.values(themes).map((option) => option.name)}
+          onChange={(changeEvent) =>
+            updateEvent((current) => {
+              const selectedTheme = themes[changeEvent.target.value as keyof typeof themes] ?? themes["akshaya-tritiya"];
+
+              return {
                 ...current,
-                themeName: changeEvent.target.value as EventCmsContent["themeName"],
-              }))
-            }
-          >
-            {themeOptions.map((option) => (
-              <option key={option.name} value={option.name}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+                themeName: selectedTheme.name,
+                themeColors: selectedTheme.colors,
+              };
+            })
+          }
+        />
+        <div className="grid gap-4 md:grid-cols-2">
+          {coreThemeColorKeys.map((colorKey) => (
+            <ColorInput
+              key={colorKey}
+              label={themeColorLabels[colorKey]}
+              value={palette[colorKey]}
+              onChange={(changeEvent) =>
+                updateEvent((current) => {
+                  const currentTheme = themes[current.themeName ?? "akshaya-tritiya"] ?? themes["akshaya-tritiya"];
+
+                  return {
+                    ...current,
+                    themeColors: {
+                      ...(current.themeColors ?? currentTheme.colors),
+                      [colorKey]: changeEvent.target.value,
+                    },
+                  };
+                })
+              }
+            />
+          ))}
+        </div>
       </FormSection>
     );
   }
@@ -404,7 +538,24 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
     return (
       <div className="grid gap-4 p-4">
         {event.hero.posters.map((poster, index) => (
-          <FormSection key={`${poster.alt}-${index}`} title={`Poster ${index + 1}`}>
+          <FormSection
+            key={`${poster.alt}-${index}`}
+            title={`Poster ${index + 1}`}
+            footer={
+              <ItemActionButton
+                icon={<Trash2 className="h-4 w-4" />}
+                label="Delete"
+                variant="danger"
+                disabled={event.hero.posters.length <= 1}
+                onClick={() =>
+                  updateEvent((current) => ({
+                    ...current,
+                    hero: { ...current.hero, posters: current.hero.posters.filter((_, posterIndex) => posterIndex !== index) },
+                  }))
+                }
+              />
+            }
+          >
             <TextInput
               label={`Desktop ${index + 1}`}
               value={poster.desktopSrc}
@@ -440,6 +591,24 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
             />
           </FormSection>
         ))}
+        <div className="flex justify-end px-1">
+          <ItemActionButton
+            icon={<Plus className="h-4 w-4" />}
+            label="Add poster"
+            onClick={() =>
+              updateEvent((current) => ({
+                ...current,
+                hero: {
+                  ...current.hero,
+                  posters: [
+                    ...current.hero.posters,
+                    { desktopSrc: "/hero-secton/desktop-version-poster1.png", mobileSrc: "/hero-secton/mobile-version-poster1.png", alt: "New campaign poster" },
+                  ],
+                },
+              }))
+            }
+          />
+        </div>
       </div>
     );
   }
@@ -505,7 +674,14 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
         <TextInput label="Eyebrow" value={event.overview.eyebrow} onChange={(changeEvent) => updateEvent((current) => ({ ...current, overview: { ...current.overview, eyebrow: changeEvent.target.value } }))} />
         <TextInput label="Title" value={event.overview.title} onChange={(changeEvent) => updateEvent((current) => ({ ...current, overview: { ...current.overview, title: changeEvent.target.value } }))} />
         <TextAreaInput label="Quote" value={event.overview.quote} onChange={(changeEvent) => updateEvent((current) => ({ ...current, overview: { ...current.overview, quote: changeEvent.target.value } }))} rows={3} />
+        <TextAreaInput label="Emphasis" value={event.overview.emphasis} onChange={(changeEvent) => updateEvent((current) => ({ ...current, overview: { ...current.overview, emphasis: changeEvent.target.value } }))} rows={3} />
         <TextAreaInput label="Supporting text" value={event.overview.supportingText} onChange={(changeEvent) => updateEvent((current) => ({ ...current, overview: { ...current.overview, supportingText: changeEvent.target.value } }))} rows={4} />
+        <TextInput label="Sacred day label" value={event.overview.sacredDayLabel} onChange={(changeEvent) => updateEvent((current) => ({ ...current, overview: { ...current.overview, sacredDayLabel: changeEvent.target.value } }))} />
+        <TextInput label="Video src" value={event.overview.video.src} onChange={(changeEvent) => updateEvent((current) => ({ ...current, overview: { ...current.overview, video: { ...current.overview.video, src: changeEvent.target.value } } }))} />
+        <TextInput label="Video title" value={event.overview.video.title} onChange={(changeEvent) => updateEvent((current) => ({ ...current, overview: { ...current.overview, video: { ...current.overview.video, title: changeEvent.target.value } } }))} />
+        <TextInput label="Impact eyebrow" value={event.overview.impactEyebrow} onChange={(changeEvent) => updateEvent((current) => ({ ...current, overview: { ...current.overview, impactEyebrow: changeEvent.target.value } }))} />
+        <TextInput label="Heading" value={event.overview.heading} onChange={(changeEvent) => updateEvent((current) => ({ ...current, overview: { ...current.overview, heading: changeEvent.target.value } }))} />
+        <TextInput label="Highlighted heading" value={event.overview.highlightedHeading} onChange={(changeEvent) => updateEvent((current) => ({ ...current, overview: { ...current.overview, highlightedHeading: changeEvent.target.value } }))} />
         <TextAreaInput
           label="Points"
           value={event.overview.points.join("\n")}
@@ -520,6 +696,7 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
           }
           rows={6}
         />
+        <TextInput label="Donate label" value={event.overview.donateLabel} onChange={(changeEvent) => updateEvent((current) => ({ ...current, overview: { ...current.overview, donateLabel: changeEvent.target.value } }))} />
       </FormSection>
     );
   }
@@ -528,11 +705,40 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
     return (
       <div className="grid gap-4 p-4">
         <FormSection>
+          <TextInput label="Eyebrow" value={event.importance.eyebrow} onChange={(changeEvent) => updateEvent((current) => ({ ...current, importance: { ...current.importance, eyebrow: changeEvent.target.value } }))} />
           <TextInput label="Title" value={event.importance.title} onChange={(changeEvent) => updateEvent((current) => ({ ...current, importance: { ...current.importance, title: changeEvent.target.value } }))} />
           <TextAreaInput label="Description" value={event.importance.description} onChange={(changeEvent) => updateEvent((current) => ({ ...current, importance: { ...current.importance, description: changeEvent.target.value } }))} rows={4} />
         </FormSection>
         {event.importance.items.map((item, index) => (
-          <FormSection key={`${item.title}-${index}`} title={`Item ${index + 1}`}>
+          <FormSection
+            key={`${item.title}-${index}`}
+            title={`Item ${index + 1}`}
+            footer={
+              <ItemActionButton
+                icon={<Trash2 className="h-4 w-4" />}
+                label="Delete"
+                variant="danger"
+                disabled={event.importance.items.length <= 1}
+                onClick={() =>
+                  updateEvent((current) => ({
+                    ...current,
+                    importance: { ...current.importance, items: current.importance.items.filter((_, itemIndex) => itemIndex !== index) },
+                  }))
+                }
+              />
+            }
+          >
+            <TextInput
+              label={`Item ${index + 1} image`}
+              value={item.image}
+              onChange={(changeEvent) =>
+                updateEvent((current) => {
+                  const items = [...current.importance.items];
+                  items[index] = { ...items[index], image: changeEvent.target.value };
+                  return { ...current, importance: { ...current.importance, items } };
+                })
+              }
+            />
             <TextInput
               label={`Item ${index + 1} title`}
               value={item.title}
@@ -558,6 +764,21 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
             />
           </FormSection>
         ))}
+        <div className="flex justify-end px-1">
+          <ItemActionButton
+            icon={<Plus className="h-4 w-4" />}
+            label="Add item"
+            onClick={() =>
+              updateEvent((current) => ({
+                ...current,
+                importance: {
+                  ...current.importance,
+                  items: [...current.importance.items, { image: "/Akshaya_Tritiya_seva.png", title: "New importance item", description: "Add the importance details here." }],
+                },
+              }))
+            }
+          />
+        </div>
       </div>
     );
   }
@@ -566,11 +787,29 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
     return (
       <div className="grid gap-4 p-4">
         <FormSection>
+          <TextInput label="Eyebrow" value={event.impact.eyebrow} onChange={(changeEvent) => updateEvent((current) => ({ ...current, impact: { ...current.impact, eyebrow: changeEvent.target.value } }))} />
           <TextInput label="Title" value={event.impact.title} onChange={(changeEvent) => updateEvent((current) => ({ ...current, impact: { ...current.impact, title: changeEvent.target.value } }))} />
           <TextAreaInput label="Description" value={event.impact.description} onChange={(changeEvent) => updateEvent((current) => ({ ...current, impact: { ...current.impact, description: changeEvent.target.value } }))} rows={4} />
         </FormSection>
         {event.impact.cards.map((card, index) => (
-          <FormSection key={`${card.title}-${index}`} title={`Card ${index + 1}`}>
+          <FormSection
+            key={`${card.title}-${index}`}
+            title={`Card ${index + 1}`}
+            footer={
+              <ItemActionButton
+                icon={<Trash2 className="h-4 w-4" />}
+                label="Delete"
+                variant="danger"
+                disabled={event.impact.cards.length <= 1}
+                onClick={() =>
+                  updateEvent((current) => ({
+                    ...current,
+                    impact: { ...current.impact, cards: current.impact.cards.filter((_, cardIndex) => cardIndex !== index) },
+                  }))
+                }
+              />
+            }
+          >
             <TextInput
               label={`Card ${index + 1} title`}
               value={card.title}
@@ -596,30 +835,110 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
             />
           </FormSection>
         ))}
+        <div className="flex justify-end px-1">
+          <ItemActionButton
+            icon={<Plus className="h-4 w-4" />}
+            label="Add card"
+            onClick={() =>
+              updateEvent((current) => ({
+                ...current,
+                impact: {
+                  ...current.impact,
+                  cards: [...current.impact.cards, { title: "New impact card", text: "Add the impact details here." }],
+                },
+              }))
+            }
+          />
+        </div>
       </div>
     );
   }
 
   function renderPrivilegesForm() {
     return (
-      <FormSection>
-        <TextInput label="Title" value={event.privileges.title} onChange={(changeEvent) => updateEvent((current) => ({ ...current, privileges: { ...current.privileges, title: changeEvent.target.value } }))} />
-        <TextInput label="Donate label" value={event.privileges.donateLabel} onChange={(changeEvent) => updateEvent((current) => ({ ...current, privileges: { ...current.privileges, donateLabel: changeEvent.target.value } }))} />
-        <TextAreaInput
-          label="Privileges"
-          value={event.privileges.privileges.join("\n")}
-          onChange={(changeEvent) =>
-            updateEvent((current) => ({
-              ...current,
-              privileges: {
-                ...current.privileges,
-                privileges: changeEvent.target.value.split("\n").map((item) => item.trim()).filter(Boolean),
-              },
-            }))
-          }
-          rows={6}
-        />
-      </FormSection>
+      <div className="grid gap-4 p-4">
+        <FormSection>
+          <TextInput label="Title" value={event.privileges.title} onChange={(changeEvent) => updateEvent((current) => ({ ...current, privileges: { ...current.privileges, title: changeEvent.target.value } }))} />
+          <TextInput label="Donate label" value={event.privileges.donateLabel} onChange={(changeEvent) => updateEvent((current) => ({ ...current, privileges: { ...current.privileges, donateLabel: changeEvent.target.value } }))} />
+        </FormSection>
+        {event.privileges.privileges.map((privilege, index) => (
+          <FormSection
+            key={`${privilege}-${index}`}
+            title={`Privilege ${index + 1}`}
+            footer={
+              <ItemActionButton
+                icon={<Trash2 className="h-4 w-4" />}
+                label="Delete"
+                variant="danger"
+                disabled={event.privileges.privileges.length <= 1}
+                onClick={() =>
+                  updateEvent((current) => ({
+                    ...current,
+                    privileges: {
+                      ...current.privileges,
+                      privileges: current.privileges.privileges.filter((_, privilegeIndex) => privilegeIndex !== index),
+                    },
+                  }))
+                }
+              />
+            }
+          >
+            <TextAreaInput
+              label={`Privilege ${index + 1}`}
+              value={privilege}
+              onChange={(changeEvent) =>
+                updateEvent((current) => {
+                  const privileges = [...current.privileges.privileges];
+                  privileges[index] = changeEvent.target.value;
+                  return { ...current, privileges: { ...current.privileges, privileges } };
+                })
+              }
+              rows={3}
+            />
+          </FormSection>
+        ))}
+        <div className="flex justify-end px-1">
+          <ItemActionButton
+            icon={<Plus className="h-4 w-4" />}
+            label="Add privilege"
+            onClick={() =>
+              updateEvent((current) => ({
+                ...current,
+                privileges: {
+                  ...current.privileges,
+                  privileges: [...current.privileges.privileges, "Add a new donor privilege here."],
+                },
+              }))
+            }
+          />
+        </div>
+        {event.privileges.carouselItems.map((item, index) => (
+          <FormSection key={`${item.src}-${index}`} title={`Carousel Item ${index + 1}`}>
+            <TextInput
+              label={`Image ${index + 1}`}
+              value={item.src}
+              onChange={(changeEvent) =>
+                updateEvent((current) => {
+                  const carouselItems = [...current.privileges.carouselItems];
+                  carouselItems[index] = { ...carouselItems[index], src: changeEvent.target.value };
+                  return { ...current, privileges: { ...current.privileges, carouselItems } };
+                })
+              }
+            />
+            <TextInput
+              label={`Label ${index + 1}`}
+              value={item.label}
+              onChange={(changeEvent) =>
+                updateEvent((current) => {
+                  const carouselItems = [...current.privileges.carouselItems];
+                  carouselItems[index] = { ...carouselItems[index], label: changeEvent.target.value };
+                  return { ...current, privileges: { ...current.privileges, carouselItems } };
+                })
+              }
+            />
+          </FormSection>
+        ))}
+      </div>
     );
   }
 
@@ -629,10 +948,37 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
         <FormSection>
           <TextInput label="Eyebrow" value={event.seva.eyebrow} onChange={(changeEvent) => updateEvent((current) => ({ ...current, seva: { ...current.seva, eyebrow: changeEvent.target.value } }))} />
           <TextInput label="Title" value={event.seva.title} onChange={(changeEvent) => updateEvent((current) => ({ ...current, seva: { ...current.seva, title: changeEvent.target.value } }))} />
-          <TextAreaInput label="Description" value={event.seva.description} onChange={(changeEvent) => updateEvent((current) => ({ ...current, seva: { ...current.seva, description: changeEvent.target.value } }))} rows={4} />
         </FormSection>
         {event.seva.items.map((item, index) => (
-          <FormSection key={`${item.title}-${index}`} title={`Item ${index + 1}`}>
+          <FormSection
+            key={`${item.title}-${index}`}
+            title={`Item ${index + 1}`}
+            footer={
+              <ItemActionButton
+                icon={<Trash2 className="h-4 w-4" />}
+                label="Delete"
+                variant="danger"
+                disabled={event.seva.items.length <= 1}
+                onClick={() =>
+                  updateEvent((current) => ({
+                    ...current,
+                    seva: { ...current.seva, items: current.seva.items.filter((_, itemIndex) => itemIndex !== index) },
+                  }))
+                }
+              />
+            }
+          >
+            <TextInput
+              label={`Item ${index + 1} image`}
+              value={item.image}
+              onChange={(changeEvent) =>
+                updateEvent((current) => {
+                  const items = [...current.seva.items];
+                  items[index] = { ...items[index], image: changeEvent.target.value };
+                  return { ...current, seva: { ...current.seva, items } };
+                })
+              }
+            />
             <TextInput
               label={`Item ${index + 1} title`}
               value={item.title}
@@ -658,6 +1004,21 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
             />
           </FormSection>
         ))}
+        <div className="flex justify-end px-1">
+          <ItemActionButton
+            icon={<Plus className="h-4 w-4" />}
+            label="Add item"
+            onClick={() =>
+              updateEvent((current) => ({
+                ...current,
+                seva: {
+                  ...current.seva,
+                  items: [...current.seva.items, { image: "/Gau_Seva.jpg", title: "New seva item", description: "Add the seva details here." }],
+                },
+              }))
+            }
+          />
+        </div>
       </div>
     );
   }
@@ -678,7 +1039,24 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
           />
         </FormSection>
         {event.gallery.items.map((item, index) => (
-          <FormSection key={`${item.src}-${index}`} title={`Gallery ${index + 1}`}>
+          <FormSection
+            key={`${item.src}-${index}`}
+            title={`Gallery ${index + 1}`}
+            footer={
+              <ItemActionButton
+                icon={<Trash2 className="h-4 w-4" />}
+                label="Delete"
+                variant="danger"
+                disabled={event.gallery.items.length <= 1}
+                onClick={() =>
+                  updateEvent((current) => ({
+                    ...current,
+                    gallery: { ...current.gallery, items: current.gallery.items.filter((_, itemIndex) => itemIndex !== index) },
+                  }))
+                }
+              />
+            }
+          >
             <TextInput
               label={`Image ${index + 1}`}
               value={item.src}
@@ -703,6 +1081,331 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
             />
           </FormSection>
         ))}
+        <div className="flex justify-end px-1">
+          <ItemActionButton
+            icon={<Plus className="h-4 w-4" />}
+            label="Add image"
+            onClick={() =>
+              updateEvent((current) => ({
+                ...current,
+                gallery: {
+                  ...current.gallery,
+                  items: [...current.gallery.items, { src: "/Mandir_Nirman_Seva.jpg", label: "New gallery image" }],
+                },
+              }))
+            }
+          />
+        </div>
+      </div>
+    );
+  }
+
+  function renderContributorsForm() {
+    return (
+      <div className="grid gap-4 p-4">
+        <FormSection title="Section Copy">
+          <TextInput
+            label="Heading"
+            value={event.contributors.heading}
+            onChange={(changeEvent) =>
+              updateEvent((current) => ({
+                ...current,
+                contributors: { ...current.contributors, heading: changeEvent.target.value },
+              }))
+            }
+          />
+          <TextInput
+            label="Recent tab label"
+            value={event.contributors.tabs.recent}
+            onChange={(changeEvent) =>
+              updateEvent((current) => ({
+                ...current,
+                contributors: {
+                  ...current.contributors,
+                  tabs: { ...current.contributors.tabs, recent: changeEvent.target.value },
+                },
+              }))
+            }
+          />
+          <TextInput
+            label="Generous tab label"
+            value={event.contributors.tabs.generous}
+            onChange={(changeEvent) =>
+              updateEvent((current) => ({
+                ...current,
+                contributors: {
+                  ...current.contributors,
+                  tabs: { ...current.contributors.tabs, generous: changeEvent.target.value },
+                },
+              }))
+            }
+          />
+          <TextInput
+            label="Modal title"
+            value={event.contributors.modal.title}
+            onChange={(changeEvent) =>
+              updateEvent((current) => ({
+                ...current,
+                contributors: {
+                  ...current.contributors,
+                  modal: { ...current.contributors.modal, title: changeEvent.target.value },
+                },
+              }))
+            }
+          />
+          <TextInput
+            label="Recent subtitle"
+            value={event.contributors.modal.recentSubtitle}
+            onChange={(changeEvent) =>
+              updateEvent((current) => ({
+                ...current,
+                contributors: {
+                  ...current.contributors,
+                  modal: { ...current.contributors.modal, recentSubtitle: changeEvent.target.value },
+                },
+              }))
+            }
+          />
+          <TextInput
+            label="Generous subtitle"
+            value={event.contributors.modal.generousSubtitle}
+            onChange={(changeEvent) =>
+              updateEvent((current) => ({
+                ...current,
+                contributors: {
+                  ...current.contributors,
+                  modal: { ...current.contributors.modal, generousSubtitle: changeEvent.target.value },
+                },
+              }))
+            }
+          />
+          <TextInput
+            label="Search placeholder"
+            value={event.contributors.modal.searchPlaceholder}
+            onChange={(changeEvent) =>
+              updateEvent((current) => ({
+                ...current,
+                contributors: {
+                  ...current.contributors,
+                  modal: { ...current.contributors.modal, searchPlaceholder: changeEvent.target.value },
+                },
+              }))
+            }
+          />
+          <TextInput
+            label="Empty state prefix"
+            value={event.contributors.modal.emptyStatePrefix}
+            onChange={(changeEvent) =>
+              updateEvent((current) => ({
+                ...current,
+                contributors: {
+                  ...current.contributors,
+                  modal: { ...current.contributors.modal, emptyStatePrefix: changeEvent.target.value },
+                },
+              }))
+            }
+          />
+        </FormSection>
+
+        {(["recent", "generous"] as const).map((groupKey) => (
+          <div key={groupKey} className="grid gap-4">
+            {event.contributors[groupKey].map((item, index) => (
+              <FormSection key={`${groupKey}-${item.name}-${index}`} title={`${groupKey === "recent" ? "Recent" : "Generous"} Donor ${index + 1}`}>
+                <TextInput
+                  label="Name"
+                  value={item.name}
+                  onChange={(changeEvent) =>
+                    updateEvent((current) => {
+                      const contributors = [...current.contributors[groupKey]];
+                      contributors[index] = { ...contributors[index], name: changeEvent.target.value };
+                      return {
+                        ...current,
+                        contributors: { ...current.contributors, [groupKey]: contributors },
+                      };
+                    })
+                  }
+                />
+                <TextInput
+                  label="Amount"
+                  value={String(item.amount)}
+                  onChange={(changeEvent) =>
+                    updateEvent((current) => {
+                      const contributors = [...current.contributors[groupKey]];
+                      const nextAmount = Number(changeEvent.target.value);
+                      contributors[index] = {
+                        ...contributors[index],
+                        amount: Number.isFinite(nextAmount) ? nextAmount : 0,
+                      };
+                      return {
+                        ...current,
+                        contributors: { ...current.contributors, [groupKey]: contributors },
+                      };
+                    })
+                  }
+                />
+                <TextInput
+                  label="Time"
+                  value={item.time}
+                  onChange={(changeEvent) =>
+                    updateEvent((current) => {
+                      const contributors = [...current.contributors[groupKey]];
+                      contributors[index] = { ...contributors[index], time: changeEvent.target.value };
+                      return {
+                        ...current,
+                        contributors: { ...current.contributors, [groupKey]: contributors },
+                      };
+                    })
+                  }
+                />
+                <TextInput
+                  label="Avatar"
+                  value={item.avatar}
+                  onChange={(changeEvent) =>
+                    updateEvent((current) => {
+                      const contributors = [...current.contributors[groupKey]];
+                      contributors[index] = { ...contributors[index], avatar: changeEvent.target.value };
+                      return {
+                        ...current,
+                        contributors: { ...current.contributors, [groupKey]: contributors },
+                      };
+                    })
+                  }
+                />
+              </FormSection>
+            ))}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  function renderDonationForm() {
+    return (
+      <div className="grid gap-4 p-4">
+        <FormSection title="Support Details">
+          <TextInput
+            label="Support phone"
+            value={event.donationForm.support.phone}
+            onChange={(changeEvent) =>
+              updateEvent((current) => ({
+                ...current,
+                donationForm: {
+                  ...current.donationForm,
+                  support: { ...current.donationForm.support, phone: changeEvent.target.value },
+                },
+              }))
+            }
+          />
+          <TextInput
+            label="Support email"
+            value={event.donationForm.support.email}
+            onChange={(changeEvent) =>
+              updateEvent((current) => ({
+                ...current,
+                donationForm: {
+                  ...current.donationForm,
+                  support: { ...current.donationForm.support, email: changeEvent.target.value },
+                },
+              }))
+            }
+          />
+        </FormSection>
+
+        <FormSection title="Bank Details">
+          <TextInput
+            label="Beneficiary name"
+            value={event.donationForm.bank.fields.beneficiaryName}
+            onChange={(changeEvent) =>
+              updateEvent((current) => ({
+                ...current,
+                donationForm: {
+                  ...current.donationForm,
+                  bank: {
+                    ...current.donationForm.bank,
+                    fields: { ...current.donationForm.bank.fields, beneficiaryName: changeEvent.target.value },
+                  },
+                },
+              }))
+            }
+          />
+          <TextInput
+            label="Bank name"
+            value={event.donationForm.bank.fields.bankName}
+            onChange={(changeEvent) =>
+              updateEvent((current) => ({
+                ...current,
+                donationForm: {
+                  ...current.donationForm,
+                  bank: {
+                    ...current.donationForm.bank,
+                    fields: { ...current.donationForm.bank.fields, bankName: changeEvent.target.value },
+                  },
+                },
+              }))
+            }
+          />
+          <TextInput
+            label="Account number"
+            value={event.donationForm.bank.fields.accountNumber}
+            onChange={(changeEvent) =>
+              updateEvent((current) => ({
+                ...current,
+                donationForm: {
+                  ...current.donationForm,
+                  bank: {
+                    ...current.donationForm.bank,
+                    fields: { ...current.donationForm.bank.fields, accountNumber: changeEvent.target.value },
+                  },
+                },
+              }))
+            }
+          />
+          <TextInput
+            label="IFSC code"
+            value={event.donationForm.bank.fields.ifscCode}
+            onChange={(changeEvent) =>
+              updateEvent((current) => ({
+                ...current,
+                donationForm: {
+                  ...current.donationForm,
+                  bank: {
+                    ...current.donationForm.bank,
+                    fields: { ...current.donationForm.bank.fields, ifscCode: changeEvent.target.value },
+                  },
+                },
+              }))
+            }
+          />
+        </FormSection>
+
+        <FormSection title="UPI Details">
+          <TextInput
+            label="UPI ID"
+            value={event.donationForm.upi.upiId}
+            onChange={(changeEvent) =>
+              updateEvent((current) => ({
+                ...current,
+                donationForm: {
+                  ...current.donationForm,
+                  upi: { ...current.donationForm.upi, upiId: changeEvent.target.value },
+                },
+              }))
+            }
+          />
+          <TextInput
+            label="UPI & QR scanner"
+            value={event.donationForm.upi.qrImage}
+            onChange={(changeEvent) =>
+              updateEvent((current) => ({
+                ...current,
+                donationForm: {
+                  ...current.donationForm,
+                  upi: { ...current.donationForm.upi, qrImage: changeEvent.target.value },
+                },
+              }))
+            }
+          />
+        </FormSection>
       </div>
     );
   }
@@ -729,6 +1432,8 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
         return renderSevaForm();
       case "gallery":
         return renderGalleryForm();
+      case "donation-form":
+        return renderDonationForm();
       default:
         return null;
     }
@@ -737,10 +1442,10 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
   return (
     <main className="min-h-screen w-full bg-[#f8f8f8] p-0 text-[#111827]">
       <form
-        className="grid min-h-screen w-full gap-4 border border-[#e5e7eb] bg-[#fafafa] p-3 lg:h-screen lg:grid-cols-[220px_minmax(0,1fr)] lg:overflow-hidden"
+        className="grid min-h-screen w-full gap-4 border border-[#e5e7eb] bg-[#fafafa] p-3 lg:grid-cols-[220px_minmax(0,1fr)]"
         onSubmit={handleSubmit}
       >
-        <aside className="flex min-h-full flex-col gap-3 rounded-[18px] border border-[#e5e7eb] bg-[#fbfbfb] p-3 lg:sticky lg:top-0 lg:h-full">
+        <aside className="flex min-h-full flex-col gap-3 rounded-[18px] border border-[#e5e7eb] bg-[#fbfbfb] p-3 lg:sticky lg:top-3 lg:h-[calc(100vh-1.5rem)] lg:self-start">
           <div className="rounded-[14px] border border-[#e5e7eb] bg-white px-3 py-3">
             <div className="relative mx-auto h-[84px] w-full max-w-[146px]">
               <Image
@@ -766,8 +1471,8 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
             </button>
 
             <div className="mt-3 flex flex-1 flex-col rounded-[16px] border border-[#e5e7eb] bg-white p-3">
-              <div className="mb-3 border-b border-[#e5e7eb] pb-2 text-[16px]">Edit Campaign</div>
-              <div className="grid gap-1.5 text-[15px]">
+              <div className="mb-2 border-b border-[#e5e7eb] pb-2 text-[16px]">Edit Campaign</div>
+              <div className="grid gap-1 text-[15px]">
                 {menuItems
                   .filter((item) => item.id !== "dashboard")
                   .map((item) => (
@@ -775,7 +1480,7 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
                       key={item.id}
                       type="button"
                       onClick={() => setActivePanel(item.id)}
-                      className={`rounded-[10px] border px-3 py-2 text-left leading-5 transition ${
+                      className={`rounded-[10px] border px-3 py-1.5 text-left leading-5 transition ${
                         activePanel === item.id
                           ? "border-[#facc15] bg-[#fef3c7]"
                           : "border-transparent bg-transparent hover:border-[#e5e7eb] hover:bg-[#f9fafb]"
@@ -789,17 +1494,25 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
           </div>
 
           <div className="mt-auto rounded-[14px] border border-[#e5e7eb] bg-white px-3 py-3">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[#d1d5db] bg-[#f9fafb]">A</div>
-              <div className="text-sm leading-5">
-                <div>Admin</div>
-                <div>mail@gmail.com</div>
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#d1d5db] bg-[#f9fafb]">A</div>
+              <div className="min-w-0 text-sm leading-5">
+                <div className="font-medium text-[#111827]">Admin</div>
+                <div className="break-all text-[#4b5563]">admin@gmail.com</div>
               </div>
             </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-[10px] border border-[#e5e7eb] bg-[#f9fafb] px-3 py-2 text-sm font-medium text-[#374151] transition hover:bg-[#f3f4f6]"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </button>
           </div>
         </aside>
 
-        <section className={`grid gap-4 ${isDashboard ? "lg:h-full lg:overflow-y-auto lg:pr-2" : "lg:h-full lg:grid-rows-[auto_minmax(0,1fr)] lg:overflow-hidden"}`}>
+        <section className="grid gap-4 lg:pr-2">
           {isDashboard ? (
             <div className="grid grid-cols-[1fr_auto] items-center rounded-[18px] border border-[#e5e7eb] bg-white px-8 py-6 shadow-[0_2px_8px_rgba(15,23,42,0.06)]">
               <div className="justify-self-center text-center text-[18px] font-medium text-[#1f2937]">
@@ -814,9 +1527,9 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
             </div>
           ) : null}
 
-          <div className={`rounded-[18px] border border-[#e5e7eb] bg-white p-4 shadow-[0_2px_8px_rgba(15,23,42,0.06)] ${!isDashboard ? "lg:flex lg:min-h-0 lg:flex-col lg:overflow-hidden" : ""}`}>
+          <div className="rounded-[18px] border border-[#e5e7eb] bg-white p-4 shadow-[0_2px_8px_rgba(15,23,42,0.06)]">
             {!isDashboard ? (
-              <div className="mb-4 flex items-center justify-end gap-4 rounded-[14px] border border-[#e5e7eb] bg-[#f9fafb] p-4 lg:sticky lg:top-0 lg:z-10 lg:mb-0">
+              <div className="sticky top-3 z-20 mb-4 flex items-center justify-end gap-4 rounded-[14px] border border-[#e5e7eb] bg-[#f9fafb]/95 p-4 backdrop-blur">
                 <Button type="button" variant="outline" onClick={handleReset} disabled={isSaving}>
                   Reset
                 </Button>
@@ -825,7 +1538,7 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
                 </Button>
               </div>
             ) : null}
-            <div className={`min-h-[360px] ${!isDashboard ? "lg:mt-4 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-2" : ""}`}>{renderPanel()}</div>
+            <div className={`${!isDashboard ? "lg:mt-4" : "min-h-[360px]"}`}>{renderPanel()}</div>
           </div>
 
           {isDashboard ? (

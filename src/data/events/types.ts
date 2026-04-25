@@ -1,7 +1,4 @@
-import type { LucideIcon } from "lucide-react";
-
 import type { AppTheme } from "@/lib/themes";
-import type { EventIconName } from "@/lib/event-icons";
 
 export type HeroPoster = {
   desktopSrc: string;
@@ -30,7 +27,6 @@ export type EventOverviewContent = {
   heading: string;
   highlightedHeading: string;
   points: string[];
-  readMoreLabel: string;
   donateLabel: string;
 };
 
@@ -94,14 +90,11 @@ export type SevaItemContent = {
   title: string;
   description: string;
   image: string;
-  icon: LucideIcon;
-  iconName?: EventIconName;
 };
 
 export type SevaContent = {
   eyebrow: string;
   title: string;
-  description: string;
   items: SevaItemContent[];
 };
 

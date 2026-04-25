@@ -58,13 +58,13 @@ export function HeroSection({ content }: HeroSectionProps) {
                   <ResponsivePoster
                     src={poster.mobileSrc}
                     alt={poster.alt}
-                    mode="contain"
+                    mode="cover"
                     className="aspect-auto h-full min-h-0 rounded-none border-0 bg-transparent shadow-none md:hidden"
                   />
                   <ResponsivePoster
                     src={poster.desktopSrc}
                     alt={poster.alt}
-                    mode="contain"
+                    mode="cover"
                     className="hidden aspect-auto h-full min-h-0 rounded-none border-0 bg-transparent shadow-none md:block"
                   />
                 </motion.div>

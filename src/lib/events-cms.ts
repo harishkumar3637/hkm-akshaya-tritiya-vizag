@@ -8,6 +8,7 @@ import type { EventPageData } from "@/data/events/types";
 
 const eventSectionKeys = [
   "themeName",
+  "themeColors",
   "hero",
   "overview",
   "importance",
@@ -31,6 +32,7 @@ type EventSectionDocument = {
 
 const sectionSchemas = {
   themeName: eventCmsContentSchema.shape.themeName,
+  themeColors: eventCmsContentSchema.shape.themeColors,
   hero: eventCmsContentSchema.shape.hero,
   overview: eventCmsContentSchema.shape.overview,
   importance: eventCmsContentSchema.shape.importance,
@@ -97,12 +99,16 @@ function parseSectionDocument(document: Document): EventSectionDocument | null {
     return null;
   }
 
-  return {
-    slug: document.slug,
-    section: document.section,
-    value: sectionSchemas[document.section].parse(document.value) as EventCmsContent[EventSectionKey],
-    updatedAt: document.updatedAt instanceof Date ? document.updatedAt : new Date(document.updatedAt),
-  };
+  try {
+    return {
+      slug: document.slug,
+      section: document.section,
+      value: sectionSchemas[document.section].parse(document.value) as EventCmsContent[EventSectionKey],
+      updatedAt: document.updatedAt instanceof Date ? document.updatedAt : new Date(document.updatedAt),
+    };
+  } catch {
+    return null;
+  }
 }
 
 function mergeSectionDocuments(slug: string, sections: EventSectionDocument[]) {
@@ -202,20 +208,32 @@ export async function saveCmsEventContent(slug: string, content: unknown) {
   const now = new Date();
 
   await collection.bulkWrite(
-    eventSectionKeys.map((section) => ({
-      updateOne: {
-        filter: { slug: parsed.slug, section },
-        update: {
-          $set: {
-            slug: parsed.slug,
-            section,
-            value: parsed[section],
-            updatedAt: now,
+    eventSectionKeys.map((section) => {
+      const value = parsed[section];
+
+      if (typeof value === "undefined") {
+        return {
+          deleteOne: {
+            filter: { slug: parsed.slug, section },
           },
+        };
+      }
+
+      return {
+        updateOne: {
+          filter: { slug: parsed.slug, section },
+          update: {
+            $set: {
+              slug: parsed.slug,
+              section,
+              value,
+              updatedAt: now,
+            },
+          },
+          upsert: true,
         },
-        upsert: true,
-      },
-    })),
+      };
+    }),
   );
 
   return parsed;

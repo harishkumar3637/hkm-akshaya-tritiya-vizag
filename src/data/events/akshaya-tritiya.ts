@@ -1,5 +1,3 @@
-import { Flower2, Landmark, Soup, Sparkles } from "lucide-react";
-
 import type { EventPageData } from "@/data/events/types";
 import { themes } from "@/lib/themes";
 
@@ -49,7 +47,6 @@ export const akshayaTritiyaEvent: EventPageData = {
       "Do not miss this sacred opportunity to invite lasting blessings and prosperity.",
       "Receive divine blessings for yourself and your family while helping build an iconic temple at Gupt Vrindavan Dham, feed the needy, and protect the lives of 16,000+ abandoned and homeless Gau Mata.",
     ],
-    readMoreLabel: "Read More",
     donateLabel: "Donate Now",
   },
 
@@ -174,40 +171,30 @@ export const akshayaTritiyaEvent: EventPageData = {
   seva: {
     eyebrow: "Seva Offerings",
     title: "Choose a sacred way to participate",
-    description:
-      "The original page highlights multiple seva paths. This grid recreates that offering-led layout with warm image cards and devotional descriptions.",
     items: [
       {
         title: "Gau Seva",
         description:
           "Support nourishing fodder, shelter care, and loving protection for the temple cows.",
         image: "/Gau_Seva.jpg",
-        icon: Flower2,
-        iconName: "flower",
       },
       {
         title: "Annadan",
         description:
           "Help serve nourishing prasadam to devotees and visiting families on this sacred day.",
         image: "/Annadaan_Seva.jpg",
-        icon: Soup,
-        iconName: "soup",
       },
       {
         title: "Temple Seva",
         description:
           "Contribute toward temple upkeep, floral decoration, lamps, and festive arrangements.",
         image: "/Mandir_Nirman_Seva.jpg",
-        icon: Landmark,
-        iconName: "landmark",
       },
       {
         title: "Ritual Offerings",
         description:
           "Offer vastra, bhoga, flowers, and worship ingredients for the Akshaya Tritiya celebrations.",
         image: "/Chandan_Alankar_Seva.png",
-        icon: Sparkles,
-        iconName: "sparkles",
       },
     ],
   },
