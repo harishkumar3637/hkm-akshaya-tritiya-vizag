@@ -97,6 +97,7 @@ export function ImportanceCarousel({ content }: ImportanceCarouselProps) {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [isAutoplayPaused, setIsAutoplayPaused] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
   const viewportRef = useRef<HTMLDivElement | null>(null);
@@ -212,6 +213,20 @@ export function ImportanceCarousel({ content }: ImportanceCarouselProps) {
     setExpandedIndex((currentIndex) => (currentIndex === index ? null : index));
   }, []);
 
+  const handleCardPointerEnter = useCallback(() => {
+    setIsAutoplayPaused(true);
+  }, []);
+
+  const handleCardPointerLeave = useCallback(() => {
+    setIsAutoplayPaused(false);
+  }, []);
+
+  const handleViewportBlur = useCallback((event: React.FocusEvent<HTMLDivElement>) => {
+    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+      setIsAutoplayPaused(false);
+    }
+  }, []);
+
   useLayoutEffect(() => {
     if (itemCount === 0) return;
 
@@ -235,7 +250,7 @@ export function ImportanceCarousel({ content }: ImportanceCarouselProps) {
   }, [activeIndex, cloneCount, scrollToLoopedIndex]);
 
   useEffect(() => {
-    if (itemCount <= 1 || shouldReduceMotion) {
+    if (itemCount <= 1 || shouldReduceMotion || isAutoplayPaused) {
       return;
     }
 
@@ -249,7 +264,7 @@ export function ImportanceCarousel({ content }: ImportanceCarouselProps) {
         autoplayTimerRef.current = null;
       }
     };
-  }, [itemCount, scrollToLoopedIndex, shouldReduceMotion]);
+  }, [isAutoplayPaused, itemCount, scrollToLoopedIndex, shouldReduceMotion]);
 
   useEffect(() => {
     return () => {
@@ -330,6 +345,8 @@ export function ImportanceCarousel({ content }: ImportanceCarouselProps) {
             className="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-[8vw] pb-4 [scrollbar-width:none] [-ms-overflow-style:none] sm:px-[10vw] sm:gap-5 lg:px-8 lg:gap-6 xl:px-10 [&::-webkit-scrollbar]:hidden"
             aria-label="Akshaya Tritiya importance cards"
             onScroll={handleScroll}
+            onFocusCapture={() => setIsAutoplayPaused(true)}
+            onBlurCapture={handleViewportBlur}
           >
             {loopedItems.map((item, index) => {
               const realIndex = getRealIndex(index);
@@ -340,6 +357,8 @@ export function ImportanceCarousel({ content }: ImportanceCarouselProps) {
                   ref={(node) => {
                     slideRefs.current[index] = node;
                   }}
+                  onMouseEnter={handleCardPointerEnter}
+                  onMouseLeave={handleCardPointerLeave}
                   className="w-[84vw] flex-none snap-center snap-always sm:w-[46%] lg:w-[24%]"
                 >
                   <ImportanceCard

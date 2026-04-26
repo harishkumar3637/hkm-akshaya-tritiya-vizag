@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
+import { useMemo, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { LogOut, Plus, Trash2 } from "lucide-react";
+import { ImagePlus, LogOut, Plus, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { EventCmsContent } from "@/data/events/cms";
@@ -78,6 +78,152 @@ const currencyFormatter = new Intl.NumberFormat("en-IN", {
   maximumFractionDigits: 0,
 });
 
+const acceptedImageTypes = new Set(["image/jpeg", "image/png"]);
+const acceptedImageExtensions = ".jpg,.jpeg,.png";
+const acceptedVideoTypes = new Set(["video/mp4", "video/webm", "video/ogg"]);
+const acceptedVideoExtensions = ".mp4,.webm,.ogg";
+const emptyTextSentinel = "\u200B";
+const emptyImageSentinel = "__EDITOR_EMPTY_IMAGE__";
+
+function sanitizeEditorTextValue(value: string) {
+  return value.replaceAll(emptyTextSentinel, "");
+}
+
+function isUploadedDataUrl(value: string) {
+  return value.startsWith("data:");
+}
+
+function isEmptyImageValue(value: string) {
+  return value.trim().length === 0 || value === emptyImageSentinel;
+}
+
+function getAssetInputDisplayValue(value: string, uploadedLabel: string) {
+  if (value === emptyImageSentinel) {
+    return "";
+  }
+
+  if (isUploadedDataUrl(value)) {
+    return uploadedLabel;
+  }
+
+  return sanitizeEditorTextValue(value);
+}
+
+function readFileAsDataUrl(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+        return;
+      }
+
+      reject(new Error("Unable to read the selected image."));
+    };
+
+    reader.onerror = () => reject(new Error("Unable to read the selected image."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function FileSourceInput({
+  label,
+  value,
+  onChange,
+  accept,
+  acceptedTypes,
+  helperText,
+  buttonLabel,
+  emptyLabel,
+  errorLabel,
+}: {
+  label: string;
+  value: string;
+  onChange: (nextValue: string) => void;
+  accept: string;
+  acceptedTypes: Set<string>;
+  helperText: string;
+  buttonLabel: string;
+  emptyLabel: string;
+  errorLabel: string;
+}) {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
+  const hasValue = value.trim().length > 0 && value !== emptyImageSentinel;
+  const displayedValue = getAssetInputDisplayValue(value, `Uploaded ${buttonLabel.toLowerCase()} file`);
+  const isUploadedFile = isUploadedDataUrl(value);
+
+  async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      setErrorMessage(`No file selected. Please choose a supported ${errorLabel}.`);
+      event.target.value = "";
+      return;
+    }
+
+    if (!acceptedTypes.has(file.type)) {
+      setErrorMessage(`Only supported ${errorLabel} files are allowed.`);
+      event.target.value = "";
+      return;
+    }
+
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      onChange(dataUrl);
+      setErrorMessage("");
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Unable to process the selected file.");
+    } finally {
+      event.target.value = "";
+    }
+  }
+
+  return (
+    <div className="grid gap-3">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-sm font-medium text-[#4b5563]">{label}</span>
+        <span className="text-xs font-medium uppercase tracking-[0.14em] text-[#9ca3af]">{buttonLabel}</span>
+      </div>
+
+      <div className="grid gap-3 rounded-[14px] border border-[#dbe3ee] bg-[#fcfcfd] p-3">
+        <input
+          type="text"
+          className="h-11 w-full rounded-[12px] border border-[#cbd5e1] bg-white px-3 py-2 text-[#111827] shadow-[inset_0_1px_2px_rgba(15,23,42,0.04)] outline-none transition focus:border-[#b4763c] focus:ring-2 focus:ring-[#f3d5b5]"
+          value={displayedValue}
+          readOnly={isUploadedFile}
+          onChange={(event) => {
+            onChange(event.target.value);
+            if (errorMessage) {
+              setErrorMessage("");
+            }
+          }}
+          placeholder={emptyLabel}
+        />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs leading-5 text-[#6b7280]">{helperText}</p>
+          <button
+            type="button"
+            onClick={() => {
+              setErrorMessage("");
+              fileInputRef.current?.click();
+            }}
+            className="inline-flex h-10 items-center gap-2 rounded-[10px] border border-[#d8c3aa] bg-[#fff7ed] px-3 text-sm font-medium text-[#8b5c33] transition hover:bg-[#ffedd5]"
+          >
+            <ImagePlus className="h-4 w-4" />
+            {hasValue ? `Change ${buttonLabel.toLowerCase()}` : `Upload ${buttonLabel.toLowerCase()}`}
+          </button>
+        </div>
+      </div>
+
+      <input ref={fileInputRef} type="file" accept={accept} className="hidden" onChange={handleFileChange} />
+
+      {errorMessage ? <p className="text-sm font-medium text-[#b91c1c]">{errorMessage}</p> : null}
+    </div>
+  );
+}
+
 function buildDonorRows(event: EventCmsContent, mode: DonationMode): DonationRow[] {
   const list = mode === "recent" ? event.contributors.recent : event.contributors.generous;
 
@@ -149,8 +295,14 @@ function TextInput({
       <input
         type={type}
         className="h-11 rounded-[12px] border border-[#cbd5e1] bg-white px-3 py-2 text-[#111827] shadow-[inset_0_1px_2px_rgba(15,23,42,0.04)] outline-none transition focus:border-[#b4763c] focus:ring-2 focus:ring-[#f3d5b5]"
-        value={value}
-        onChange={onChange}
+        value={sanitizeEditorTextValue(value)}
+        onChange={(event) =>
+          onChange({
+            ...event,
+            target: { ...event.target, value: sanitizeEditorTextValue(event.target.value) },
+            currentTarget: { ...event.currentTarget, value: sanitizeEditorTextValue(event.currentTarget.value) },
+          } as ChangeEvent<HTMLInputElement>)
+        }
       />
     </label>
   );
@@ -173,8 +325,14 @@ function TextAreaInput({
       <textarea
         className="rounded-[12px] border border-[#cbd5e1] bg-white px-3 py-2 text-[#111827] shadow-[inset_0_1px_2px_rgba(15,23,42,0.04)] outline-none transition focus:border-[#b4763c] focus:ring-2 focus:ring-[#f3d5b5]"
         rows={rows}
-        value={value}
-        onChange={onChange}
+        value={sanitizeEditorTextValue(value)}
+        onChange={(event) =>
+          onChange({
+            ...event,
+            target: { ...event.target, value: sanitizeEditorTextValue(event.target.value) },
+            currentTarget: { ...event.currentTarget, value: sanitizeEditorTextValue(event.currentTarget.value) },
+          } as ChangeEvent<HTMLTextAreaElement>)
+        }
       />
     </label>
   );
@@ -226,6 +384,116 @@ function ColorInput({
         <input className="min-w-0 flex-1 border-0 bg-transparent px-0 py-0 text-[#111827] outline-none" value={value} onChange={onChange} />
       </div>
     </label>
+  );
+}
+
+function ImageInput({
+  label,
+  value,
+  onChange,
+  trailingAction,
+}: {
+  label: string;
+  value: string;
+  onChange: (nextValue: string) => void;
+  trailingAction?: ReactNode;
+}) {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
+  const hasImage = !isEmptyImageValue(value);
+  const displayedValue = getAssetInputDisplayValue(value, "Uploaded image");
+  const isUploadedImage = isUploadedDataUrl(value);
+
+  async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      setErrorMessage("No file selected. Please choose a JPG or PNG image.");
+      event.target.value = "";
+      return;
+    }
+
+    if (!acceptedImageTypes.has(file.type)) {
+      setErrorMessage("Only JPG, JPEG, and PNG image files are allowed.");
+      event.target.value = "";
+      return;
+    }
+
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      onChange(dataUrl);
+      setErrorMessage("");
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Unable to process the selected image.");
+    } finally {
+      event.target.value = "";
+    }
+  }
+
+  return (
+    <div className="grid gap-3">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-sm font-medium text-[#4b5563]">{label}</span>
+        <span className="text-xs font-medium uppercase tracking-[0.14em] text-[#9ca3af]">JPG, JPEG, PNG</span>
+      </div>
+
+      <div className="grid gap-3 rounded-[14px] border border-[#dbe3ee] bg-[#fcfcfd] p-3">
+        <div className="flex items-start gap-3">
+          <div className="relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-[12px] border border-[#dbe3ee] bg-white">
+            {hasImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={value} alt={label} className="h-full w-full object-cover" />
+            ) : (
+              <div className="px-3 text-center text-xs font-medium leading-5 text-[#94a3b8]">No image yet</div>
+            )}
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <input
+              type="text"
+              className="h-11 w-full rounded-[12px] border border-[#cbd5e1] bg-white px-3 py-2 text-[#111827] shadow-[inset_0_1px_2px_rgba(15,23,42,0.04)] outline-none transition focus:border-[#b4763c] focus:ring-2 focus:ring-[#f3d5b5]"
+              value={displayedValue}
+              readOnly={isUploadedImage}
+              onChange={(event) => {
+                onChange(event.target.value);
+                if (errorMessage) {
+                  setErrorMessage("");
+                }
+              }}
+              placeholder="Paste an image URL or upload an image"
+            />
+            <p className="mt-2 text-xs leading-5 text-[#6b7280]">
+              Uploaded images are stored directly in the campaign content so they remain available in the editor.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap justify-end gap-2 border-t border-[#eef2f7] pt-3">
+          <button
+            type="button"
+            onClick={() => {
+              setErrorMessage("");
+              fileInputRef.current?.click();
+            }}
+            className="inline-flex h-10 items-center gap-2 rounded-[10px] border border-[#d8c3aa] bg-[#fff7ed] px-3 text-sm font-medium text-[#8b5c33] transition hover:bg-[#ffedd5]"
+          >
+            <ImagePlus className="h-4 w-4" />
+            {hasImage ? "Change image" : "Upload image"}
+          </button>
+          {trailingAction}
+        </div>
+      </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={acceptedImageExtensions}
+        className="hidden"
+        onChange={handleFileChange}
+      />
+
+      {errorMessage ? <p className="text-sm font-medium text-[#b91c1c]">{errorMessage}</p> : null}
+    </div>
   );
 }
 
@@ -283,12 +551,6 @@ function TimeSeriesChart({ points }: { points: ChartPoint[] }) {
             </g>
           );
         })}
-        <text x={width / 2} y={height - 10} fontSize="12" textAnchor="middle" fill="#6b7280">
-          X-axis
-        </text>
-        <text x={18} y={height / 2} fontSize="12" textAnchor="middle" fill="#6b7280" transform={`rotate(-90 18 ${height / 2})`}>
-          Y-axis
-        </text>
       </svg>
     </div>
   );
@@ -438,35 +700,32 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
   function renderDashboard() {
     return (
       <div className="grid gap-1.5">
-        <div className="rounded-[14px] border border-[#e5e7eb] bg-white px-4 py-3">
+        <div className="rounded-[14px] border border-[#e5e7eb] bg-white p-4">
+          <div className="mb-3 text-base font-semibold text-[#1f2937]">Donor list</div>
           <div className="flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={() => setDonationMode("recent")}
-              className={`rounded-[10px] border px-3 py-1.5 text-sm ${donationMode === "recent" ? "border-[#8b5c33] bg-[#f7efe6]" : "border-[#c9b8a5] bg-white"}`}
+              className={`rounded-[10px] border px-3 py-1.5 text-[15px] font-semibold ${donationMode === "recent" ? "border-[#8b5c33] bg-[#f7efe6] text-[#6f4727]" : "border-[#c9b8a5] bg-white text-[#374151]"}`}
             >
               Recent donations
             </button>
             <button
               type="button"
               onClick={() => setDonationMode("generous")}
-              className={`rounded-[10px] border px-3 py-1.5 text-sm ${donationMode === "generous" ? "border-[#8b5c33] bg-[#f7efe6]" : "border-[#c9b8a5] bg-white"}`}
+              className={`rounded-[10px] border px-3 py-1.5 text-[15px] font-semibold ${donationMode === "generous" ? "border-[#8b5c33] bg-[#f7efe6] text-[#6f4727]" : "border-[#c9b8a5] bg-white text-[#374151]"}`}
             >
               Top donations
             </button>
           </div>
-        </div>
-
-        <div className="rounded-[14px] border border-[#e5e7eb] bg-white p-4">
-          <div className="mb-2 text-sm font-medium">Donor list</div>
-          <div className="grid grid-cols-[70px_minmax(180px,1fr)_minmax(160px,200px)_140px] gap-4 px-4 text-[15px]">
+          <div className="mt-4 grid grid-cols-[70px_minmax(180px,1fr)_minmax(160px,200px)_140px] gap-4 px-4 text-[16px] font-semibold text-[#1f2937]">
             <div>SNo</div>
             <div>Name</div>
             <div>Seva</div>
             <div>Amount</div>
           </div>
 
-          <div className="max-h-[320px] overflow-y-auto px-2">
+          <div className="mt-3 max-h-[448px] overflow-y-auto px-2">
             <div className="grid gap-2">
               {donationRows.map((row, index) => (
                 <div
@@ -539,43 +798,57 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
       <div className="grid gap-4 p-4">
         {event.hero.posters.map((poster, index) => (
           <FormSection
-            key={`${poster.alt}-${index}`}
+            key={`hero-poster-${index}`}
             title={`Poster ${index + 1}`}
-            footer={
-              <ItemActionButton
-                icon={<Trash2 className="h-4 w-4" />}
-                label="Delete"
-                variant="danger"
-                disabled={event.hero.posters.length <= 1}
-                onClick={() =>
-                  updateEvent((current) => ({
-                    ...current,
-                    hero: { ...current.hero, posters: current.hero.posters.filter((_, posterIndex) => posterIndex !== index) },
-                  }))
-                }
-              />
-            }
           >
-            <TextInput
+            <ImageInput
               label={`Desktop ${index + 1}`}
               value={poster.desktopSrc}
-              onChange={(changeEvent) =>
+              onChange={(nextValue) =>
                 updateEvent((current) => {
                   const posters = [...current.hero.posters];
-                  posters[index] = { ...posters[index], desktopSrc: changeEvent.target.value };
+                  posters[index] = { ...posters[index], desktopSrc: nextValue };
                   return { ...current, hero: { ...current.hero, posters } };
                 })
               }
+              trailingAction={
+                <ItemActionButton
+                  icon={<Trash2 className="h-4 w-4" />}
+                  label="Delete"
+                  variant="danger"
+                  disabled={event.hero.posters.length <= 1}
+                  onClick={() =>
+                    updateEvent((current) => ({
+                      ...current,
+                      hero: { ...current.hero, posters: current.hero.posters.filter((_, posterIndex) => posterIndex !== index) },
+                    }))
+                  }
+                />
+              }
             />
-            <TextInput
+            <ImageInput
               label={`Mobile ${index + 1}`}
               value={poster.mobileSrc}
-              onChange={(changeEvent) =>
+              onChange={(nextValue) =>
                 updateEvent((current) => {
                   const posters = [...current.hero.posters];
-                  posters[index] = { ...posters[index], mobileSrc: changeEvent.target.value };
+                  posters[index] = { ...posters[index], mobileSrc: nextValue };
                   return { ...current, hero: { ...current.hero, posters } };
                 })
+              }
+              trailingAction={
+                <ItemActionButton
+                  icon={<Trash2 className="h-4 w-4" />}
+                  label="Delete"
+                  variant="danger"
+                  disabled={event.hero.posters.length <= 1}
+                  onClick={() =>
+                    updateEvent((current) => ({
+                      ...current,
+                      hero: { ...current.hero, posters: current.hero.posters.filter((_, posterIndex) => posterIndex !== index) },
+                    }))
+                  }
+                />
               }
             />
             <TextInput
@@ -602,7 +875,7 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
                   ...current.hero,
                   posters: [
                     ...current.hero.posters,
-                    { desktopSrc: "/hero-secton/desktop-version-poster1.png", mobileSrc: "/hero-secton/mobile-version-poster1.png", alt: "New campaign poster" },
+                    { desktopSrc: emptyImageSentinel, mobileSrc: emptyImageSentinel, alt: emptyTextSentinel },
                   ],
                 },
               }))
@@ -639,7 +912,27 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
           />
         </FormSection>
         {event.donationHighlights.items.map((item, index) => (
-          <FormSection key={`${item.title}-${index}`} title={`Highlight ${index + 1}`}>
+          <FormSection
+            key={`donation-highlight-${index}`}
+            title={`Highlight ${index + 1}`}
+            footer={
+              <ItemActionButton
+                icon={<Trash2 className="h-4 w-4" />}
+                label="Delete"
+                variant="danger"
+                disabled={event.donationHighlights.items.length <= 1}
+                onClick={() =>
+                  updateEvent((current) => ({
+                    ...current,
+                    donationHighlights: {
+                      ...current.donationHighlights,
+                      items: current.donationHighlights.items.filter((_, itemIndex) => itemIndex !== index),
+                    },
+                  }))
+                }
+              />
+            }
+          >
             <TextInput
               label={`Item ${index + 1} title`}
               value={item.title}
@@ -651,19 +944,34 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
                 })
               }
             />
-            <TextInput
+            <ImageInput
               label={`Item ${index + 1} image`}
               value={item.image}
-              onChange={(changeEvent) =>
+              onChange={(nextValue) =>
                 updateEvent((current) => {
                   const items = [...current.donationHighlights.items];
-                  items[index] = { ...items[index], image: changeEvent.target.value };
+                  items[index] = { ...items[index], image: nextValue };
                   return { ...current, donationHighlights: { ...current.donationHighlights, items } };
                 })
               }
             />
           </FormSection>
         ))}
+        <div className="flex justify-end px-1">
+          <ItemActionButton
+            icon={<Plus className="h-4 w-4" />}
+            label="Add card"
+            onClick={() =>
+              updateEvent((current) => ({
+                ...current,
+                donationHighlights: {
+                  ...current.donationHighlights,
+                  items: [...current.donationHighlights.items, { title: emptyTextSentinel, image: emptyImageSentinel }],
+                },
+              }))
+            }
+          />
+        </div>
       </div>
     );
   }
@@ -677,7 +985,22 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
         <TextAreaInput label="Emphasis" value={event.overview.emphasis} onChange={(changeEvent) => updateEvent((current) => ({ ...current, overview: { ...current.overview, emphasis: changeEvent.target.value } }))} rows={3} />
         <TextAreaInput label="Supporting text" value={event.overview.supportingText} onChange={(changeEvent) => updateEvent((current) => ({ ...current, overview: { ...current.overview, supportingText: changeEvent.target.value } }))} rows={4} />
         <TextInput label="Sacred day label" value={event.overview.sacredDayLabel} onChange={(changeEvent) => updateEvent((current) => ({ ...current, overview: { ...current.overview, sacredDayLabel: changeEvent.target.value } }))} />
-        <TextInput label="Video src" value={event.overview.video.src} onChange={(changeEvent) => updateEvent((current) => ({ ...current, overview: { ...current.overview, video: { ...current.overview.video, src: changeEvent.target.value } } }))} />
+        <FileSourceInput
+          label="Video src"
+          value={event.overview.video.src}
+          onChange={(nextValue) =>
+            updateEvent((current) => ({
+              ...current,
+              overview: { ...current.overview, video: { ...current.overview.video, src: nextValue } },
+            }))
+          }
+          accept={acceptedVideoExtensions}
+          acceptedTypes={acceptedVideoTypes}
+          helperText="Paste an embeddable video URL or upload an MP4, WebM, or OGG file."
+          buttonLabel="Video"
+          emptyLabel="Paste a video URL or upload a file"
+          errorLabel="video"
+        />
         <TextInput label="Video title" value={event.overview.video.title} onChange={(changeEvent) => updateEvent((current) => ({ ...current, overview: { ...current.overview, video: { ...current.overview.video, title: changeEvent.target.value } } }))} />
         <TextInput label="Impact eyebrow" value={event.overview.impactEyebrow} onChange={(changeEvent) => updateEvent((current) => ({ ...current, overview: { ...current.overview, impactEyebrow: changeEvent.target.value } }))} />
         <TextInput label="Heading" value={event.overview.heading} onChange={(changeEvent) => updateEvent((current) => ({ ...current, overview: { ...current.overview, heading: changeEvent.target.value } }))} />
@@ -711,32 +1034,32 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
         </FormSection>
         {event.importance.items.map((item, index) => (
           <FormSection
-            key={`${item.title}-${index}`}
+            key={`importance-item-${index}`}
             title={`Item ${index + 1}`}
-            footer={
-              <ItemActionButton
-                icon={<Trash2 className="h-4 w-4" />}
-                label="Delete"
-                variant="danger"
-                disabled={event.importance.items.length <= 1}
-                onClick={() =>
-                  updateEvent((current) => ({
-                    ...current,
-                    importance: { ...current.importance, items: current.importance.items.filter((_, itemIndex) => itemIndex !== index) },
-                  }))
-                }
-              />
-            }
           >
-            <TextInput
+            <ImageInput
               label={`Item ${index + 1} image`}
               value={item.image}
-              onChange={(changeEvent) =>
+              onChange={(nextValue) =>
                 updateEvent((current) => {
                   const items = [...current.importance.items];
-                  items[index] = { ...items[index], image: changeEvent.target.value };
+                  items[index] = { ...items[index], image: nextValue };
                   return { ...current, importance: { ...current.importance, items } };
                 })
+              }
+              trailingAction={
+                <ItemActionButton
+                  icon={<Trash2 className="h-4 w-4" />}
+                  label="Delete"
+                  variant="danger"
+                  disabled={event.importance.items.length <= 1}
+                  onClick={() =>
+                    updateEvent((current) => ({
+                      ...current,
+                      importance: { ...current.importance, items: current.importance.items.filter((_, itemIndex) => itemIndex !== index) },
+                    }))
+                  }
+                />
               }
             />
             <TextInput
@@ -767,13 +1090,16 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
         <div className="flex justify-end px-1">
           <ItemActionButton
             icon={<Plus className="h-4 w-4" />}
-            label="Add item"
+            label="Add card"
             onClick={() =>
               updateEvent((current) => ({
                 ...current,
                 importance: {
                   ...current.importance,
-                  items: [...current.importance.items, { image: "/Akshaya_Tritiya_seva.png", title: "New importance item", description: "Add the importance details here." }],
+                  items: [
+                    ...current.importance.items,
+                    { image: emptyImageSentinel, title: emptyTextSentinel, description: emptyTextSentinel },
+                  ],
                 },
               }))
             }
@@ -793,7 +1119,7 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
         </FormSection>
         {event.impact.cards.map((card, index) => (
           <FormSection
-            key={`${card.title}-${index}`}
+            key={`impact-card-${index}`}
             title={`Card ${index + 1}`}
             footer={
               <ItemActionButton
@@ -844,7 +1170,7 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
                 ...current,
                 impact: {
                   ...current.impact,
-                  cards: [...current.impact.cards, { title: "New impact card", text: "Add the impact details here." }],
+                  cards: [...current.impact.cards, { title: emptyTextSentinel, text: emptyTextSentinel }],
                 },
               }))
             }
@@ -863,7 +1189,7 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
         </FormSection>
         {event.privileges.privileges.map((privilege, index) => (
           <FormSection
-            key={`${privilege}-${index}`}
+            key={`privilege-item-${index}`}
             title={`Privilege ${index + 1}`}
             footer={
               <ItemActionButton
@@ -913,14 +1239,34 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
           />
         </div>
         {event.privileges.carouselItems.map((item, index) => (
-          <FormSection key={`${item.src}-${index}`} title={`Carousel Item ${index + 1}`}>
-            <TextInput
+          <FormSection
+            key={`privilege-carousel-${index}`}
+            title={`Carousel Item ${index + 1}`}
+            footer={
+              <ItemActionButton
+                icon={<Trash2 className="h-4 w-4" />}
+                label="Delete"
+                variant="danger"
+                disabled={event.privileges.carouselItems.length <= 1}
+                onClick={() =>
+                  updateEvent((current) => ({
+                    ...current,
+                    privileges: {
+                      ...current.privileges,
+                      carouselItems: current.privileges.carouselItems.filter((_, itemIndex) => itemIndex !== index),
+                    },
+                  }))
+                }
+              />
+            }
+          >
+            <ImageInput
               label={`Image ${index + 1}`}
               value={item.src}
-              onChange={(changeEvent) =>
+              onChange={(nextValue) =>
                 updateEvent((current) => {
                   const carouselItems = [...current.privileges.carouselItems];
-                  carouselItems[index] = { ...carouselItems[index], src: changeEvent.target.value };
+                  carouselItems[index] = { ...carouselItems[index], src: nextValue };
                   return { ...current, privileges: { ...current.privileges, carouselItems } };
                 })
               }
@@ -938,6 +1284,21 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
             />
           </FormSection>
         ))}
+        <div className="flex justify-end px-1">
+          <ItemActionButton
+            icon={<Plus className="h-4 w-4" />}
+            label="Add card"
+            onClick={() =>
+              updateEvent((current) => ({
+                ...current,
+                privileges: {
+                  ...current.privileges,
+                  carouselItems: [...current.privileges.carouselItems, { src: emptyImageSentinel, label: emptyTextSentinel }],
+                },
+              }))
+            }
+          />
+        </div>
       </div>
     );
   }
@@ -951,32 +1312,32 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
         </FormSection>
         {event.seva.items.map((item, index) => (
           <FormSection
-            key={`${item.title}-${index}`}
+            key={`seva-item-${index}`}
             title={`Item ${index + 1}`}
-            footer={
-              <ItemActionButton
-                icon={<Trash2 className="h-4 w-4" />}
-                label="Delete"
-                variant="danger"
-                disabled={event.seva.items.length <= 1}
-                onClick={() =>
-                  updateEvent((current) => ({
-                    ...current,
-                    seva: { ...current.seva, items: current.seva.items.filter((_, itemIndex) => itemIndex !== index) },
-                  }))
-                }
-              />
-            }
           >
-            <TextInput
+            <ImageInput
               label={`Item ${index + 1} image`}
               value={item.image}
-              onChange={(changeEvent) =>
+              onChange={(nextValue) =>
                 updateEvent((current) => {
                   const items = [...current.seva.items];
-                  items[index] = { ...items[index], image: changeEvent.target.value };
+                  items[index] = { ...items[index], image: nextValue };
                   return { ...current, seva: { ...current.seva, items } };
                 })
+              }
+              trailingAction={
+                <ItemActionButton
+                  icon={<Trash2 className="h-4 w-4" />}
+                  label="Delete"
+                  variant="danger"
+                  disabled={event.seva.items.length <= 1}
+                  onClick={() =>
+                    updateEvent((current) => ({
+                      ...current,
+                      seva: { ...current.seva, items: current.seva.items.filter((_, itemIndex) => itemIndex !== index) },
+                    }))
+                  }
+                />
               }
             />
             <TextInput
@@ -1007,13 +1368,13 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
         <div className="flex justify-end px-1">
           <ItemActionButton
             icon={<Plus className="h-4 w-4" />}
-            label="Add item"
+            label="Add card"
             onClick={() =>
               updateEvent((current) => ({
                 ...current,
                 seva: {
                   ...current.seva,
-                  items: [...current.seva.items, { image: "/Gau_Seva.jpg", title: "New seva item", description: "Add the seva details here." }],
+                  items: [...current.seva.items, { image: emptyImageSentinel, title: emptyTextSentinel, description: emptyTextSentinel }],
                 },
               }))
             }
@@ -1040,32 +1401,32 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
         </FormSection>
         {event.gallery.items.map((item, index) => (
           <FormSection
-            key={`${item.src}-${index}`}
+            key={`gallery-item-${index}`}
             title={`Gallery ${index + 1}`}
-            footer={
-              <ItemActionButton
-                icon={<Trash2 className="h-4 w-4" />}
-                label="Delete"
-                variant="danger"
-                disabled={event.gallery.items.length <= 1}
-                onClick={() =>
-                  updateEvent((current) => ({
-                    ...current,
-                    gallery: { ...current.gallery, items: current.gallery.items.filter((_, itemIndex) => itemIndex !== index) },
-                  }))
-                }
-              />
-            }
           >
-            <TextInput
+            <ImageInput
               label={`Image ${index + 1}`}
               value={item.src}
-              onChange={(changeEvent) =>
+              onChange={(nextValue) =>
                 updateEvent((current) => {
                   const items = [...current.gallery.items];
-                  items[index] = { ...items[index], src: changeEvent.target.value };
+                  items[index] = { ...items[index], src: nextValue };
                   return { ...current, gallery: { ...current.gallery, items } };
                 })
+              }
+              trailingAction={
+                <ItemActionButton
+                  icon={<Trash2 className="h-4 w-4" />}
+                  label="Delete"
+                  variant="danger"
+                  disabled={event.gallery.items.length <= 1}
+                  onClick={() =>
+                    updateEvent((current) => ({
+                      ...current,
+                      gallery: { ...current.gallery, items: current.gallery.items.filter((_, itemIndex) => itemIndex !== index) },
+                    }))
+                  }
+                />
               }
             />
             <TextInput
@@ -1090,7 +1451,7 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
                 ...current,
                 gallery: {
                   ...current.gallery,
-                  items: [...current.gallery.items, { src: "/Mandir_Nirman_Seva.jpg", label: "New gallery image" }],
+                  items: [...current.gallery.items, { src: emptyImageSentinel, label: emptyTextSentinel }],
                 },
               }))
             }
@@ -1210,7 +1571,7 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
         {(["recent", "generous"] as const).map((groupKey) => (
           <div key={groupKey} className="grid gap-4">
             {event.contributors[groupKey].map((item, index) => (
-              <FormSection key={`${groupKey}-${item.name}-${index}`} title={`${groupKey === "recent" ? "Recent" : "Generous"} Donor ${index + 1}`}>
+              <FormSection key={`${groupKey}-donor-${index}`} title={`${groupKey === "recent" ? "Recent" : "Generous"} Donor ${index + 1}`}>
                 <TextInput
                   label="Name"
                   value={item.name}
@@ -1392,15 +1753,15 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
               }))
             }
           />
-          <TextInput
+          <ImageInput
             label="UPI & QR scanner"
             value={event.donationForm.upi.qrImage}
-            onChange={(changeEvent) =>
+            onChange={(nextValue) =>
               updateEvent((current) => ({
                 ...current,
                 donationForm: {
                   ...current.donationForm,
-                  upi: { ...current.donationForm.upi, qrImage: changeEvent.target.value },
+                  upi: { ...current.donationForm.upi, qrImage: nextValue },
                 },
               }))
             }
@@ -1440,12 +1801,12 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
   }
 
   return (
-    <main className="min-h-screen w-full bg-[#f8f8f8] p-0 text-[#111827]">
+    <main className="h-screen w-full overflow-hidden bg-[#f8f8f8] p-0 text-[#111827]">
       <form
-        className="grid min-h-screen w-full gap-4 border border-[#e5e7eb] bg-[#fafafa] p-3 lg:grid-cols-[220px_minmax(0,1fr)]"
+        className="grid h-screen w-full gap-4 border border-[#e5e7eb] bg-[#fafafa] p-3 lg:grid-cols-[220px_minmax(0,1fr)]"
         onSubmit={handleSubmit}
       >
-        <aside className="flex min-h-full flex-col gap-3 rounded-[18px] border border-[#e5e7eb] bg-[#fbfbfb] p-3 lg:sticky lg:top-3 lg:h-[calc(100vh-1.5rem)] lg:self-start">
+        <aside className="flex h-[calc(100vh-1.5rem)] flex-col gap-3 rounded-[18px] border border-[#e5e7eb] bg-[#fbfbfb] p-3 lg:sticky lg:top-3 lg:self-start">
           <div className="rounded-[14px] border border-[#e5e7eb] bg-white px-3 py-3">
             <div className="relative mx-auto h-[84px] w-full max-w-[146px]">
               <Image
@@ -1512,15 +1873,16 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
           </div>
         </aside>
 
-        <section className="grid gap-4 lg:pr-2">
+        <section className="grid h-[calc(100vh-1.5rem)] min-h-0 gap-4 overflow-y-auto lg:pr-2">
           {isDashboard ? (
-            <div className="grid grid-cols-[1fr_auto] items-center rounded-[18px] border border-[#e5e7eb] bg-white px-8 py-6 shadow-[0_2px_8px_rgba(15,23,42,0.06)]">
-              <div className="justify-self-center text-center text-[18px] font-medium text-[#1f2937]">
-                Amount Raised : {totalRaised.toLocaleString("en-IN")}
+            <div className="grid gap-4 rounded-[18px] border border-[#e5e7eb] bg-white px-8 py-5 shadow-[0_2px_8px_rgba(15,23,42,0.06)] sm:grid-cols-[1fr_auto] sm:items-center">
+              <div className="justify-self-center text-center">
+                <div className="text-[15px] font-medium text-[#374151]">Raised amount</div>
+                <div className="mt-1 text-[18px] font-medium text-[#1f2937]">{totalRaised.toLocaleString("en-IN")}</div>
               </div>
               <div className="justify-self-end text-center">
-                <div className="mb-2 text-[16px] font-medium text-[#374151]">Active Campaign</div>
-                <div className="min-w-[186px] rounded-[10px] border border-[#9ca3af] bg-white px-4 py-2 text-[16px] text-[#374151]">
+                <div className="mb-2 text-[15px] font-medium lowercase text-[#374151]">active campaign</div>
+                <div className="min-w-[186px] rounded-[10px] border border-[#7c8798] bg-white px-4 py-1.5 text-[16px] font-medium text-[#374151] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
                   akshaya Tritiya
                 </div>
               </div>
@@ -1529,11 +1891,11 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
 
           <div className="rounded-[18px] border border-[#e5e7eb] bg-white p-4 shadow-[0_2px_8px_rgba(15,23,42,0.06)]">
             {!isDashboard ? (
-              <div className="sticky top-3 z-20 mb-4 flex items-center justify-end gap-4 rounded-[14px] border border-[#e5e7eb] bg-[#f9fafb]/95 p-4 backdrop-blur">
+              <div className="sticky top-0 z-20 mb-4 flex items-center justify-end gap-4 rounded-[14px] border border-[#e5e7eb] bg-[#f9fafb]/95 p-4 backdrop-blur">
                 <Button type="button" variant="outline" onClick={handleReset} disabled={isSaving}>
                   Reset
                 </Button>
-                <Button type="submit" disabled={isSaving || !validation.valid}>
+                <Button type="submit" disabled={isSaving}>
                   {isSaving ? "Saving..." : "Save"}
                 </Button>
               </div>
@@ -1550,18 +1912,6 @@ export function EventCmsEditor({ initialEvent, initialSource: _initialSource }: 
               </FormSection>
             </div>
           ) : null}
-
-          {isDashboard ? (
-            <div className="flex justify-end gap-4">
-              <Button type="button" variant="outline" onClick={handleReset} disabled={isSaving}>
-                Reset
-              </Button>
-              <Button type="submit" disabled={isSaving || !validation.valid}>
-                {isSaving ? "Saving..." : "Save"}
-              </Button>
-            </div>
-          ) : null}
-
           {saveState.message ? (
             <div className={`text-sm ${saveState.tone === "error" ? "text-red-700" : "text-[#6d4a2a]"}`}>{saveState.message}</div>
           ) : null}

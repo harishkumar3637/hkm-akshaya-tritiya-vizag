@@ -9,6 +9,9 @@ export function EventOverviewSection({ content }: EventOverviewSectionProps) {
   const [beforeKeyword, afterKeyword] = content.supportingText.includes("Akshaya Punya")
     ? content.supportingText.split("Akshaya Punya")
     : [content.supportingText, ""];
+  const isUploadedVideo =
+    content.video.src.startsWith("data:video/") ||
+    /\.(mp4|webm|ogg)(\?.*)?$/i.test(content.video.src);
 
   return (
     <section className="bg-gradient-to-b from-[var(--decorativeSoft)] via-[color-mix(in_srgb,var(--decorativeAccent)_78%,white)] to-[var(--decorativeSoft)] px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
@@ -64,15 +67,25 @@ export function EventOverviewSection({ content }: EventOverviewSectionProps) {
         <div className="mt-7 grid items-center gap-6 rounded-2xl border-2 border-[color-mix(in_srgb,var(--buttonPrimary)_30%,transparent)] bg-white/40 p-5 backdrop-blur-sm lg:grid-cols-[minmax(360px,480px)_1fr] lg:gap-8 lg:p-6 xl:grid-cols-[minmax(420px,560px)_1fr]">
           <div className="overflow-hidden rounded-2xl border-4 border-[var(--buttonPrimary)] shadow-lg">
             <div className="relative aspect-video bg-black">
-              <iframe
-                src={content.video.src}
-                title={content.video.title}
-                className="absolute inset-0 h-full w-full"
-                loading="lazy"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerPolicy="strict-origin-when-cross-origin"
-                allowFullScreen
-              />
+              {isUploadedVideo ? (
+                <video
+                  src={content.video.src}
+                  title={content.video.title}
+                  className="absolute inset-0 h-full w-full"
+                  controls
+                  playsInline
+                />
+              ) : (
+                <iframe
+                  src={content.video.src}
+                  title={content.video.title}
+                  className="absolute inset-0 h-full w-full"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                />
+              )}
             </div>
           </div>
 

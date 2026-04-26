@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Search, X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 import { fadeInUp } from '@/lib/animations';
 import type { Contributor, ContributorsContent } from '@/data/events/types';
@@ -66,32 +66,18 @@ type ContributorsSectionProps = {
 export function ContributorsSection({ content }: ContributorsSectionProps) {
   const [activeTab, setActiveTab] = useState<'recent' | 'generous'>('recent');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const shouldReduceMotion = useReducedMotion();
 
   const openModal = () => {
-    setSearchQuery('');
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
-    setSearchQuery('');
     setIsModalOpen(false);
   };
 
   const activeContributors = activeTab === 'recent' ? content.recent : content.generous;
   const columns = useMemo(() => splitIntoColumns(activeContributors, 3), [activeContributors]);
-  const filteredContributors = useMemo(() => {
-    const normalizedQuery = searchQuery.trim().toLowerCase();
-
-    if (!normalizedQuery) {
-      return activeContributors;
-    }
-
-    return activeContributors.filter((contributor) =>
-      contributor.name.toLowerCase().includes(normalizedQuery)
-    );
-  }, [activeContributors, searchQuery]);
 
   useEffect(() => {
     if (!isModalOpen) {
@@ -197,49 +183,30 @@ export function ContributorsSection({ content }: ContributorsSectionProps) {
               </button>
             </div>
 
-            <div className="px-6 pt-5 sm:px-7">
-              <label className="relative block">
-                <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[var(--textMuted)]" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder={content.modal.searchPlaceholder}
-                  className="w-full rounded-2xl border border-[color-mix(in_srgb,var(--buttonPrimary)_18%,white)] bg-[color-mix(in_srgb,var(--cardRaisedBackground)_82%,white)] py-3 pl-11 pr-4 text-base text-[var(--textHeading)] outline-none transition focus:border-[var(--buttonPrimary)] focus:ring-2 focus:ring-[color-mix(in_srgb,var(--buttonPrimary)_15%,transparent)]"
-                />
-              </label>
-            </div>
-
             <div className="mt-5 overflow-y-auto px-6 pb-6 sm:px-7 sm:pb-7">
-              <div className="space-y-5">
-                {filteredContributors.length > 0 ? (
-                  filteredContributors.map((contributor) => (
-                    <article
-                      key={`${activeTab}-${contributor.name}-${contributor.amount}`}
-                      className="flex items-center gap-3 rounded-[16px] border border-[color-mix(in_srgb,var(--buttonPrimary)_16%,white)] bg-[linear-gradient(135deg,color-mix(in_srgb,var(--cardRaisedBackground)_84%,white),color-mix(in_srgb,var(--decorativeSoft)_44%,transparent))] px-3 py-3 shadow-[0_10px_24px_color-mix(in_srgb,var(--shadowColor)_14%,transparent)] sm:px-4"
-                    >
-                      <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--buttonPrimary)_16%,white)] bg-[color-mix(in_srgb,var(--cardRaisedBackground)_80%,white)] text-xl font-bold text-[var(--textHeading)] sm:h-14 sm:w-14">
-                        {contributor.avatar}
-                      </div>
+              <div className="space-y-3.5">
+                {activeContributors.map((contributor) => (
+                  <article
+                    key={`${activeTab}-${contributor.name}-${contributor.amount}`}
+                    className="flex items-center gap-3 rounded-[14px] border border-[color-mix(in_srgb,var(--buttonPrimary)_16%,white)] bg-[linear-gradient(135deg,color-mix(in_srgb,var(--cardRaisedBackground)_84%,white),color-mix(in_srgb,var(--decorativeSoft)_44%,transparent))] px-3 py-2.5 shadow-[0_8px_18px_color-mix(in_srgb,var(--shadowColor)_12%,transparent)]"
+                  >
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--buttonPrimary)_16%,white)] bg-[color-mix(in_srgb,var(--cardRaisedBackground)_80%,white)] text-base font-bold text-[var(--textHeading)] sm:h-12 sm:w-12 sm:text-lg">
+                      {contributor.avatar}
+                    </div>
 
-                      <div className="min-w-0">
-                        <h4 className="truncate text-lg font-bold leading-tight text-[var(--buttonPrimary)] sm:text-[1.65rem]">
-                          {contributor.name}
-                        </h4>
-                        <p className="mt-0.5 text-base font-bold text-[var(--textHeading)] sm:text-[1.35rem]">
-                          Donated Rs {contributor.amount.toLocaleString('en-IN')}
-                        </p>
-                        <p className="mt-0.5 text-sm text-[var(--textMuted)] sm:text-[1.05rem]">
-                          {contributor.time}
-                        </p>
-                      </div>
-                    </article>
-                  ))
-                ) : (
-                  <div className="rounded-[16px] bg-[color-mix(in_srgb,var(--cardRaisedBackground)_85%,white)] px-5 py-8 text-center text-[var(--textMuted)]">
-                    {content.modal.emptyStatePrefix} &quot;{searchQuery}&quot;.
-                  </div>
-                )}
+                    <div className="min-w-0">
+                      <h4 className="truncate text-base font-bold leading-tight text-[var(--buttonPrimary)] sm:text-lg">
+                        {contributor.name}
+                      </h4>
+                      <p className="mt-0.5 text-sm font-bold text-[var(--textHeading)] sm:text-[0.95rem]">
+                        Donated Rs {contributor.amount.toLocaleString('en-IN')}
+                      </p>
+                      <p className="mt-0.5 text-xs text-[var(--textMuted)] sm:text-sm">
+                        {contributor.time}
+                      </p>
+                    </div>
+                  </article>
+                ))}
               </div>
             </div>
           </div>
